@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/07/29 19:24:42 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/07/30 18:17:23 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 
 #include <iostream>
+#include <sys/poll.h>
 #include <vector>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -30,6 +31,7 @@ class	Server
 	private:
 		int					Socket_fd;
 		struct sockaddr_in	Server_addr;
+		std::vector<struct pollfd > fdes;
 	public:
 		void	init_Socket(int domain, int type, int protocol, int port);
 		void	Server_connection(int port);
@@ -38,12 +40,16 @@ class	Server
 		
 };
 
-// class	Client
-// {
-// 	private:
-// 		int					Client_fd;
-// 		std::string			Client_ip;
-	
-// };
+class	Client
+{
+	private:
+		int					Client_fd;
+		std::string			Client_ip;
+	public:
+		int		getClient_fd();
+		
+		void	setClient_fd(int fd);
+		void	setClient_ip(std::string ip);
+};
 
 #endif
