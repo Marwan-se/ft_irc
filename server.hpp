@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/07/30 18:17:23 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/11 15:53:18 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,5 +51,7 @@ class	Client
 		void	setClient_fd(int fd);
 		void	setClient_ip(std::string ip);
 };
+
+int ft_stoi(std::string str);
 
 #endif

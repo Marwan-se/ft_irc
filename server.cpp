@@ -6,15 +6,15 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/07 20:03:11 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/14 17:57:16 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.hpp"
 #include <iterator>
-#include <sys/_types/_ssize_t.h>
 #include <sys/poll.h>
 #include <vector>
+#include <cstring>
 
 
 struct sockaddr_in	Server::getServer_addr()
@@ -42,6 +42,17 @@ void	Client::setClient_ip(std::string ip)
 	Client_ip = ip;
 }
 
+int ft_stoi(std::string str)
+{
+	int res = 0;
+	for (size_t i = 0; i < str.size(); i++)
+	{
+		if (str[i] < '0' || str[i] > '9')
+			throw (std::runtime_error("Error: stoi failed"));
+		res = res * 10 + str[i] - '0';
+	}
+	return (res);
+}
 
 void	Server::init_Socket(int domain, int type, int protocol, int port)
 {
@@ -53,6 +64,11 @@ void	Server::init_Socket(int domain, int type, int protocol, int port)
 	Socket_fd = socket(domain, type, protocol);
 	if (Socket_fd < 0)
 		throw (std::runtime_error("Error: socket failed"));
+	int opt = 1;
+	if (setsockopt(Socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+		throw (std::runtime_error("Error: setsockopt failed"));
+	if (fcntl(Socket_fd, F_SETFL, O_NONBLOCK) < 0)
+		throw (std::runtime_error("Error: fcntl failed"));
 	//bind socket
 	if (bind(Socket_fd, (struct sockaddr *)&Server_addr, sizeof(Server_addr)) < 0)
 		throw (std::runtime_error("Error: bind failed"));
@@ -68,15 +84,12 @@ void	Server::Server_connection(int port)
 	new_poll.fd = Socket_fd;
 	new_poll.events = POLLIN;
 	new_poll.revents = 0;
-	
-	fdes.push_back(new_poll);
-	
-	
-	int timeout = -1;
-	
-	std::cout << "Server <" << Socket_fd << "> is connected" << std::endl;
-	std::cout << "Waiting for accept...." << std::endl;
 
+	fdes.push_back(new_poll);
+
+	int timeout = -1;
+	std::cout << "Server <" << Socket_fd << "> connected" << std::endl;
+	std::cout << "Waiting to connect clients..." << std::endl;
 	while (1)
 	{
 		if (poll(fdes.data(), fdes.size(), timeout) < 0)
@@ -112,7 +125,7 @@ void	Server::Server_connection(int port)
 				else
 				{
 					char buffer[512];
-					bzero(buffer, sizeof(buffer));
+					memset(buffer, 0, sizeof(buffer));
 
 					ssize_t	data = recv(fdes[i].fd, buffer, sizeof(buffer), 0);
 					if (data < 0)
@@ -120,7 +133,7 @@ void	Server::Server_connection(int port)
 					else
 					{
 						buffer[data] = '\0';
-						std::cout << "Client <" << fdes[i].fd << "> : " << buffer << std::endl;
+						std::cout << "Client <" << fdes[i].fd << "> : " << buffer;
 					}
 				}
 			}
