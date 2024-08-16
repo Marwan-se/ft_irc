@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:28 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/16 00:57:30 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/16 02:26:34 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,7 @@ int main(int ac, char **av)
     try
     {
         while (!Server::signal_received_flag)
-        {
             server.Server_connection(port);
-        }
     }
     catch(const std::exception& e)
     {

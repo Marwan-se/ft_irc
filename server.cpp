@@ -6,13 +6,14 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/16 00:54:22 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/16 02:22:45 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.hpp"
 #include <iterator>
 #include <sys/poll.h>
+#include <sys/signal.h>
 #include <vector>
 #include <cstring>
 
@@ -20,11 +21,11 @@ bool	Server::signal_received_flag = false;
 
 void	Server::signal_received(int signal)
 {
-        if (signal == SIGINT)
-		{
-			std::cout << "singal received. Exiting..." << std::endl;
-            signal_received_flag = true;
-        }
+    if (signal == SIGINT || signal == SIGQUIT)
+	{
+		std::cout << "singal received. Exiting..." << std::endl;
+        signal_received_flag = true;
+    }
 }
 
 struct sockaddr_in	Server::getServer_addr()
@@ -136,7 +137,7 @@ void	Server::Server_connection(int port)
 					char buffer[512];
 					memset(buffer, 0, sizeof(buffer));
 					ssize_t	data = recv(fdes[i].fd, buffer, sizeof(buffer), 0);
-					if (data < 0)
+					if (data <= 0)
 						throw (std::runtime_error("Client disconnected"));
 					else
 					{
