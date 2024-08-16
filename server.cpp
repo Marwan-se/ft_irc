@@ -3,18 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/07 20:03:11 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/16 13:37:25 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.hpp"
-#include <iterator>
+#include "commands/Message.hpp"
 #include <sys/_types/_ssize_t.h>
 #include <sys/poll.h>
 #include <vector>
+
 
 
 struct sockaddr_in	Server::getServer_addr()
@@ -116,11 +117,16 @@ void	Server::Server_connection(int port)
 
 					ssize_t	data = recv(fdes[i].fd, buffer, sizeof(buffer), 0);
 					if (data < 0)
-						throw (std::runtime_error("Client disconnected"));
+							throw (std::runtime_error("Client disconnected"));
 					else
 					{
 						buffer[data] = '\0';
-						std::cout << "Client <" << fdes[i].fd << "> : " << buffer << std::endl;
+						Message msg;
+						parsingMsg(buffer, &msg);
+						std::cout << "Command: " << msg.getCommand() << std::endl;
+						std::cout << "Target: " << msg.getTarget() << std::endl;
+						std::cout << "msg: " << msg.getMsg() << std::endl;
+						
 					}
 				}
 			}

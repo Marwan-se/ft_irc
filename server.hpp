@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/07/30 18:17:23 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/16 13:22:21 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 #include <arpa/inet.h>
 #include <poll.h>
 #include <csignal>
+#include "./commands/Message.hpp"
 
 class	Server
 {
