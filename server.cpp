@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/14 17:57:16 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/16 00:54:22 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,16 @@
 #include <vector>
 #include <cstring>
 
+bool	Server::signal_received_flag = false;
+
+void	Server::signal_received(int signal)
+{
+        if (signal == SIGINT)
+		{
+			std::cout << "singal received. Exiting..." << std::endl;
+            signal_received_flag = true;
+        }
+}
 
 struct sockaddr_in	Server::getServer_addr()
 {
@@ -80,19 +90,19 @@ void	Server::Server_connection(int port)
 {
 	init_Socket(AF_INET, SOCK_STREAM, 0, port);
 	
+	bool signal = Server::signal_received_flag = false;
 	struct pollfd new_poll;
 	new_poll.fd = Socket_fd;
 	new_poll.events = POLLIN;
 	new_poll.revents = 0;
-
 	fdes.push_back(new_poll);
 
 	int timeout = -1;
 	std::cout << "Server <" << Socket_fd << "> connected" << std::endl;
 	std::cout << "Waiting to connect clients..." << std::endl;
-	while (1)
+	while (signal == 0)
 	{
-		if (poll(fdes.data(), fdes.size(), timeout) < 0)
+		if ((poll(fdes.data(), fdes.size(), timeout) < 0) && (signal == 0))
 			throw (std::runtime_error("Error: poll failed"));
 		for (size_t i = 0; i < fdes.size(); i++)
 		{
@@ -121,12 +131,10 @@ void	Server::Server_connection(int port)
 					std::cout << "Client <" << client.getClient_fd() << "> is connected" << std::endl;
 					
 				}
-				
 				else
 				{
 					char buffer[512];
 					memset(buffer, 0, sizeof(buffer));
-
 					ssize_t	data = recv(fdes[i].fd, buffer, sizeof(buffer), 0);
 					if (data < 0)
 						throw (std::runtime_error("Client disconnected"));

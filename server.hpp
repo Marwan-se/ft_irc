@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/11 15:53:18 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/16 00:54:27 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,8 @@ class	Server
 		void	Server_connection(int port);
 		struct sockaddr_in	getServer_addr();
 		int		getSocket_fd();
-		
+		static bool signal_received_flag;
+		static void signal_received(int signal);
 };
 
 class	Client
