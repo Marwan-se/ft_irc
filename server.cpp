@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/16 13:37:25 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/08/17 18:35:10 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <sys/_types/_ssize_t.h>
 #include <sys/poll.h>
 #include <vector>
+#include "./commands/ChannelFile.hpp"
 
 
 
@@ -78,6 +79,14 @@ void	Server::Server_connection(int port)
 	std::cout << "Server <" << Socket_fd << "> is connected" << std::endl;
 	std::cout << "Waiting for accept...." << std::endl;
 
+	std::vector<Channel> channelsgrp;
+	Channel *zahia = new Channel("#zahia", "music");
+	zahia->addMember("9hba1");
+	zahia->addMember("9hba2");
+	zahia->addOp("patrona");
+	
+	channelsgrp.push_back(*zahia);
+
 	while (1)
 	{
 		if (poll(fdes.data(), fdes.size(), timeout) < 0)
@@ -122,11 +131,13 @@ void	Server::Server_connection(int port)
 					{
 						buffer[data] = '\0';
 						Message msg;
-						parsingMsg(buffer, &msg);
-						std::cout << "Command: " << msg.getCommand() << std::endl;
-						std::cout << "Target: " << msg.getTarget() << std::endl;
-						std::cout << "msg: " << msg.getMsg() << std::endl;
-						
+						parsingMsg(buffer, &msg, &channelsgrp);
+							std::cout << "Command: " << msg.getCommand() << std::endl;
+							std::cout << "Target: " << msg.getTarget() << std::endl;
+							std::cout << "msg: " << msg.getMsg() << std::endl;
+							std::cout << "channel name: " << channelsgrp[0].getName() << std::endl;
+							std::cout << "channel topic: " << channelsgrp[0].getTopic() << std::endl;
+							std::cout << "channel members: " << channelsgrp[0].getMembers()[0] << " - " << channelsgrp[0].getMembers()[1] << std::endl;
 					}
 				}
 			}

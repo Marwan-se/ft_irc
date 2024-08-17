@@ -6,14 +6,13 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 10:34:01 by msaidi            #+#    #+#             */
-/*   Updated: 2024/08/16 13:39:28 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/08/17 18:01:14 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CHANNELFILE_HPP
 # define CHANNELFILE_HPP
 
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -27,7 +26,7 @@ class Channel
     
     public:
     Channel(std::string name, std::string topic);
-    std::string getName(); 
+    std::string getName();
     std::string getTopic();
     std::vector<std::string> getMembers();
     std::vector<std::string> getOps();
@@ -39,8 +38,6 @@ class Channel
     void removeOp(std::string op);
 
     ~Channel();
-    
-    
 };
 
 

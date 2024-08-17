@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 14:17:28 by msaidi            #+#    #+#             */
-/*   Updated: 2024/08/16 13:28:33 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/08/17 17:05:09 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define MESSAGE_HPP
 
 #include <string>
+#include "ChannelFile.hpp"
 
 
 class Message
@@ -22,7 +23,6 @@ class Message
         std::string command;
         std::string target;
         std::string msg;
-        
     public:
         Message();
         ~Message();
@@ -34,7 +34,7 @@ class Message
         void setCommand(std::string command);
 };
 
-void parsingMsg(char *msg, Message *message);
+void parsingMsg(char *msg, Message *message, std::vector<Channel> *channels);
 
 
 
