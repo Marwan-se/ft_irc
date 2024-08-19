@@ -6,11 +6,12 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/16 02:22:45 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/19 07:39:45 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.hpp"
+#include <iostream>
 #include <iterator>
 #include <sys/poll.h>
 #include <sys/signal.h>
@@ -27,6 +28,8 @@ void	Server::signal_received(int signal)
         signal_received_flag = true;
     }
 }
+
+
 
 struct sockaddr_in	Server::getServer_addr()
 {
@@ -138,7 +141,10 @@ void	Server::Server_connection(int port)
 					memset(buffer, 0, sizeof(buffer));
 					ssize_t	data = recv(fdes[i].fd, buffer, sizeof(buffer), 0);
 					if (data <= 0)
-						throw (std::runtime_error("Client disconnected"));
+					{
+						// std::cout << "client '" << Socket_fd << "' disconnected" << std::endl;
+						throw (std::runtime_error("client disconnected"));
+					}
 					else
 					{
 						buffer[data] = '\0';
