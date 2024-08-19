@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/16 02:10:32 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/19 12:20:43 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 
 #include <iostream>
+#include <string>
 #include <sys/poll.h>
 #include <vector>
 #include <sys/socket.h>
@@ -34,7 +35,7 @@ class	Server
 		std::vector<struct pollfd > fdes;
 	public:
 		void	init_Socket(int domain, int type, int protocol, int port);
-		void	Server_connection(int port);
+		void	Server_connection(int port, std::string password);
 		struct sockaddr_in	getServer_addr();
 		int		getSocket_fd();
 		static bool signal_received_flag;

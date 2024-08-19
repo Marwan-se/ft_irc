@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/19 07:39:45 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/19 12:24:20 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ void	Server::signal_received(int signal)
         signal_received_flag = true;
     }
 }
-
 
 
 struct sockaddr_in	Server::getServer_addr()
@@ -90,9 +89,11 @@ void	Server::init_Socket(int domain, int type, int protocol, int port)
 		throw (std::runtime_error("Error: listen failed"));
 }
 
-void	Server::Server_connection(int port)
+void	Server::Server_connection(int port, std::string password)
 {
 	init_Socket(AF_INET, SOCK_STREAM, 0, port);
+
+	(void)password;
 	
 	bool signal = Server::signal_received_flag = false;
 	struct pollfd new_poll;
