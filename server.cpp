@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/17 18:35:10 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/08/19 17:16:26 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,15 @@ void	Client::setClient_ip(std::string ip)
 	Client_ip = ip;
 }
 
+void	Client::setClient_nick(std::string nick)
+{
+	Client_nick = nick;
+}
+
+void	Client::sendMsg(std::string msg)
+{
+	send(Client_fd, msg.c_str(), msg.length(), 0);
+}
 
 void	Server::init_Socket(int domain, int type, int protocol, int port)
 {
@@ -78,14 +87,6 @@ void	Server::Server_connection(int port)
 	
 	std::cout << "Server <" << Socket_fd << "> is connected" << std::endl;
 	std::cout << "Waiting for accept...." << std::endl;
-
-	std::vector<Channel> channelsgrp;
-	Channel *zahia = new Channel("#zahia", "music");
-	zahia->addMember("9hba1");
-	zahia->addMember("9hba2");
-	zahia->addOp("patrona");
-	
-	channelsgrp.push_back(*zahia);
 
 	while (1)
 	{
@@ -131,13 +132,13 @@ void	Server::Server_connection(int port)
 					{
 						buffer[data] = '\0';
 						Message msg;
-						parsingMsg(buffer, &msg, &channelsgrp);
-							std::cout << "Command: " << msg.getCommand() << std::endl;
-							std::cout << "Target: " << msg.getTarget() << std::endl;
-							std::cout << "msg: " << msg.getMsg() << std::endl;
-							std::cout << "channel name: " << channelsgrp[0].getName() << std::endl;
-							std::cout << "channel topic: " << channelsgrp[0].getTopic() << std::endl;
-							std::cout << "channel members: " << channelsgrp[0].getMembers()[0] << " - " << channelsgrp[0].getMembers()[1] << std::endl;
+						parsingMsg(buffer, &msg, &channelsgrp, &clientsss);
+							// std::cout << "Command: " << msg.getCommand() << std::endl;
+							// std::cout << "Target: " << msg.getTarget() << std::endl;
+							// std::cout << "msg: " << msg.getMsg() << std::endl;
+							// std::cout << "channel name: " << channelsgrp[0].getName() << std::endl;
+							// std::cout << "channel topic: " << channelsgrp[0].getTopic() << std::endl;
+							// std::cout << "channel members: " << channelsgrp[0].getMembers()[0] << " - " << channelsgrp[0].getMembers()[1] << std::endl;
 					}
 				}
 			}

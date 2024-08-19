@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/16 13:22:21 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/08/19 17:02:51 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,11 +46,17 @@ class	Client
 	private:
 		int					Client_fd;
 		std::string			Client_ip;
+		std::string 		Client_nick;
+		// std::string 		Client_pass;
 	public:
 		int		getClient_fd();
 		
 		void	setClient_fd(int fd);
 		void	setClient_ip(std::string ip);
+		void	setClient_nick(std::string nick);
+		// void	setClient_pass(std::string);
+
+		void sendMsg(std::string msg);
 };
 
 #endif

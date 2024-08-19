@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 10:34:01 by msaidi            #+#    #+#             */
-/*   Updated: 2024/08/17 18:01:14 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/08/19 19:07:04 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ class Channel
     std::string topic;
     std::vector<std::string> members;
     std::vector<std::string> ops;
+    std::vector<std::string> invited;
     
     public:
     Channel(std::string name, std::string topic);
