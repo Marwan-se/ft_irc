@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:28 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/19 12:25:19 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/21 23:25:40 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ int main(int ac, char **av)
 {
 	Server server;
 
-	signal(SIGINT, server.signal_received);
+	// signal(SIGINT, server.signal_received);
 	if (ac != 3 || !av[1] || !av[2])
 	{
 		std::cerr << "Usage: ./ircserv <port> <password>" << std::endl;
@@ -42,9 +42,7 @@ int main(int ac, char **av)
 	std::string password = av[2];
 	try
 	{
-		if (!check_port(av[1]))
-			throw std::runtime_error("Invalid port number");
-		if (port < 1024 || port > 65535)
+		if (!check_port(av[1]) || port < 1024 || port > 65535)
 			throw std::runtime_error("Invalid port number");
 	}
 	catch(const std::exception& e)
@@ -54,13 +52,16 @@ int main(int ac, char **av)
 	}
 	try
 	{
-		while (!Server::signal_received_flag)
-			server.Server_connection(port, password);
+		signal(SIGINT, Server::SignalHandler);
+		signal(SIGQUIT, Server::SignalHandler);
+		server.Server_connection(port, password);
 	}
 	catch(const std::exception& e)
 	{
+		server.close_allfds();
 		std::cerr << e.what() << '\n';
 	}
+	std::cout << "Server is closed!" << std::endl;
  
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/19 12:20:43 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/22 00:38:40 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,21 +27,6 @@
 #include <poll.h>
 #include <csignal>
 
-class	Server
-{
-	private:
-		int					Socket_fd;
-		struct sockaddr_in	Server_addr;
-		std::vector<struct pollfd > fdes;
-	public:
-		void	init_Socket(int domain, int type, int protocol, int port);
-		void	Server_connection(int port, std::string password);
-		struct sockaddr_in	getServer_addr();
-		int		getSocket_fd();
-		static bool signal_received_flag;
-		static void signal_received(int sig);
-};
-
 class	Client
 {
 	private:
@@ -53,6 +38,31 @@ class	Client
 		void	setClient_fd(int fd);
 		void	setClient_ip(std::string ip);
 };
+
+class	Server
+{
+	private:
+		int					Socket_fd;
+		struct sockaddr_in	Server_addr;
+		std::vector<struct pollfd > fdes;
+		std::vector<Client> client_vec;
+	public:
+	
+		void	init_Socket(int domain, int type, int protocol, int port);
+		void	Server_connection(int port, std::string password);
+
+		struct sockaddr_in	getServer_addr();
+		int		getSocket_fd();
+		
+		static bool signal_received_flag;
+		static void SignalHandler(int signum);
+
+		void	delete_client_data_inpoll(int fd);
+		void	close_allfds();
+
+		void	receive_data(int fd);
+};
+
 
 int ft_stoi(std::string str);
 
