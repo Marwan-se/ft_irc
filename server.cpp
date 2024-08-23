@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/22 00:55:31 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/23 04:42:18 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,18 +85,6 @@ void	Client::setClient_fd(int fd)
 void	Client::setClient_ip(std::string ip)
 {
 	Client_ip = ip;
-}
-
-int ft_stoi(std::string str)
-{
-	int res = 0;
-	for (size_t i = 0; i < str.size(); i++)
-	{
-		if (str[i] < '0' || str[i] > '9')
-			throw (std::runtime_error("Error: ft_stoi failed"));
-		res = res * 10 + str[i] - '0';
-	}
-	return (res);
 }
 
 void	Server::init_Socket(int domain, int type, int protocol, int port)

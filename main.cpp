@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:28 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/21 23:25:40 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/23 04:43:08 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ int main(int ac, char **av)
 		return (1);
 	}
 	// get port from input
-	int port = ft_stoi(av[1]);
+	int port = atoi(av[1]);
 	//get password from input
 	std::string password = av[2];
 	try

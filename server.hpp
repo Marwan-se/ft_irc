@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/22 00:38:40 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/23 04:42:12 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,5 @@ class	Server
 		void	receive_data(int fd);
 };
 
-
-int ft_stoi(std::string str);
 
 #endif
