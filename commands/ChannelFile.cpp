@@ -11,6 +11,8 @@
 /* ************************************************************************** */
 
 #include "ChannelFile.hpp"
+#include <stdexcept>
+
 
 Channel::Channel(std::string name, std::string topic)
 {
