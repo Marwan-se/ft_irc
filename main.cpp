@@ -6,11 +6,11 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:28 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/23 04:43:08 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/23 22:46:29 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "server.hpp"
+#include "server/server.hpp"
 #include <cstdlib>
 #include <iostream>
 

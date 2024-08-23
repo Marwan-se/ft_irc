@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/23 04:42:18 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/23 22:35:46 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,25 +30,17 @@ void Server::SignalHandler(int signum)
 	Server::signal_received_flag = true;
 }
 
-void	Server::delete_client_data_inpoll(int fd)
-{
-	for (size_t i = 0; i < fdes.size(); i++)
-	{
-		if (fdes[i].fd == fd)
-		{
-			fdes.erase(fdes.begin() + i);
-			break;
-		}
-	}
-	// for(size_t i = 0; i < client_vec.size(); i++)
-	// {
-	// 	if (client_vec[i].getClient_fd() == fdes[i].fd)
-	// 	{
-	// 		client_vec.erase(client_vec.begin() + i);
-	// 		break;
-	// 	}
-	// }
-}
+// void	Server::delete_client_data_inpoll(int fd)
+// {
+// 	for (size_t i = 0; i < fdes.size(); i++)
+// 	{
+// 		if (fdes[i].fd == fd)
+// 		{
+// 			fdes.erase(fdes.begin() + i);
+// 			break;
+// 		}
+// 	}
+// }
 
 void	Server::close_allfds()
 {
@@ -114,7 +106,14 @@ void	Server::receive_data(int fd)
 	if (data <= 0)
 	{
 		std::cout << "Client <" << fd << "> disconnected" << std::endl;
-		delete_client_data_inpoll(fd);
+		for (size_t i = 0; i < fdes.size(); i++)
+		{
+			if (fdes[i].fd == fd)
+			{
+				fdes.erase(fdes.begin() + i);
+				break;
+			}
+		}
 		for(size_t i = 0; i < client_vec.size(); i++)
 		{
 			if (client_vec[i].getClient_fd() == fdes[i].fd)

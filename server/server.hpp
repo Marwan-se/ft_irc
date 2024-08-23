@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/23 04:42:12 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/23 22:37:59 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,10 +57,8 @@ class	Server
 		static bool signal_received_flag;
 		static void SignalHandler(int signum);
 
-		void	delete_client_data_inpoll(int fd);
-		void	close_allfds();
-
 		void	receive_data(int fd);
+		void	close_allfds();
 };
 
 
