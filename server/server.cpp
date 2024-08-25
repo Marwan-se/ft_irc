@@ -6,11 +6,13 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/23 22:35:46 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/25 14:42:55 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.hpp"
+#include "../authentication/auth.hpp"
+
 #include <cstddef>
 #include <iostream>
 #include <iterator>
@@ -22,6 +24,10 @@
 
 bool	Server::signal_received_flag = false;
 
+void	Client::set_authenticated()
+{
+	is_authenticated = false;
+}
 
 void Server::SignalHandler(int signum)
 {
@@ -29,18 +35,6 @@ void Server::SignalHandler(int signum)
 	std::cout << std::endl << "Signal Received!" << std::endl;
 	Server::signal_received_flag = true;
 }
-
-// void	Server::delete_client_data_inpoll(int fd)
-// {
-// 	for (size_t i = 0; i < fdes.size(); i++)
-// 	{
-// 		if (fdes[i].fd == fd)
-// 		{
-// 			fdes.erase(fdes.begin() + i);
-// 			break;
-// 		}
-// 	}
-// }
 
 void	Server::close_allfds()
 {
@@ -128,6 +122,9 @@ void	Server::receive_data(int fd)
 	{
 		buffer[data] = '\0';
 		std::cout << "Client <" << fd << "> sent: " << buffer;
+		// authenticate client
+		Auth auth;
+		auth.authenticate(buffer);
 	}
 	
 }

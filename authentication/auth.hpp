@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/23 22:38:33 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/23 22:43:45 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/25 14:42:38 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,13 @@
 #include <vector>
 #include <fstream>
 
+#define ERR_PASSWDMISMATCH "Password incorrect"
+
 class Auth
 {
-    private:
-        std::string password;
     public:
-        static bool is_authenticated;
+    
+    void    authenticate(const std::string &input);
 };
 
 

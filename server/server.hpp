@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/23 22:37:59 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/25 14:35:15 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,11 +32,14 @@ class	Client
 	private:
 		int					Client_fd;
 		std::string			Client_ip;
+		bool				is_authenticated;
 	public:
 		int		getClient_fd();
 		
 		void	setClient_fd(int fd);
 		void	setClient_ip(std::string ip);
+
+		void	set_authenticated();
 };
 
 class	Server
