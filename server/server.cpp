@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/25 14:42:55 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/08/26 17:10:43 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,9 +122,12 @@ void	Server::receive_data(int fd)
 	{
 		buffer[data] = '\0';
 		std::cout << "Client <" << fd << "> sent: " << buffer;
-		// authenticate client
 		Auth auth;
 		auth.authenticate(buffer);
+		//parse the client input
+		auth.parse_input(buffer);
+		
+		// authenticate client
 	}
 	
 }

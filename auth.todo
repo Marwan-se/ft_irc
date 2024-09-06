@@ -1,0 +1,4 @@
+todo:
+    - get input in the authenticate function
+    - parse the input
+    - make the commands pass , nick and user
