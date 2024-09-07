@@ -6,13 +6,12 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/07 11:47:16 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/07 18:24:59 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.hpp"
 
-#include <cctype>
 #include <cstddef>
 #include <iostream>
 #include <iterator>
@@ -23,13 +22,27 @@
 #include <vector>
 #include <map>
 #include <cstring>
-
+#include <cctype>
 
 bool	Server::signal_received_flag = false;
+bool	Client::pass_received = false;
+bool	Client::nick_received = false;
+bool	Client::user_received = false;	
+
 
 void	Client::set_authenticated()
 {
-	is_authenticated = false;
+	is_authenticated = true;
+}
+
+void	Client::setClient_nickname(std::string nickname)
+{
+	Client_nickname = nickname;
+}
+
+std::string	Client::getClient_nickname()
+{
+	return (Client_nickname);
 }
 
 void Server::SignalHandler(int signum)
@@ -107,7 +120,7 @@ void	Server::init_Socket(int domain, int type, int protocol, int port)
 		throw (std::runtime_error("Error: listen failed"));
 }
 
-void	Server::receive_data(int fd)
+void	Server::receive_data(int fd, std::string password)
 {
 	char buffer[1024];
 	memset(buffer, 0, sizeof(buffer));
@@ -146,11 +159,61 @@ void	Server::receive_data(int fd)
 		
 		line >> command;
 		//toupper for command
-
+		
+		for (size_t i = 0; i < command.length(); i++)
+			command[i] = std::toupper(command[i]);
+		
 		//store the command in a variable && store the rest of the data in another variable
 		line >> rest_of_data;
 		
 		//check if the command is PASS NICK or USER
+		Client client;
+		if (command == "PASS")
+		{
+			// call the pass command function
+			if (rest_of_data.empty())
+			{
+				std::cerr << "Error: No password entered" << std::endl;
+				return;
+			}
+			else if (rest_of_data != password)
+			{
+				std::cerr << "Error: Incorrect password" << std::endl;
+				return;
+			}
+			else if (rest_of_data == password)
+			{
+				client_info[fd].pass_received = true;
+				return;
+			}
+		}
+		else if (command == "NICK")
+		{
+			// call the nick command function
+			if (rest_of_data.empty())
+			{
+				std::cerr << "Error: No nickname entered" << std::endl;
+				return;
+			}
+			else
+			{
+				client_info[fd].setClient_nickname(rest_of_data);
+				client_info[fd].nick_received = true;
+				
+				//print whats in the client_info map
+				// for (std::map<int, Client>::iterator it = client_info.begin(); it != client_info.end(); it++)
+				// {
+				// 	std::cout << "fd: " << it->first << " client nickname: " << it->second.getClient_nickname() << std::endl;
+					
+				// }
+				
+			}
+		}
+		// print the client fd and the client nickname
+		if (command == "USER")
+		{
+			// call the user command function
+		}
 		
 		
 	}
@@ -160,8 +223,6 @@ void	Server::receive_data(int fd)
 void	Server::Server_connection(int port, std::string password)
 {
 	init_Socket(AF_INET, SOCK_STREAM, 0, port);
-
-	(void)password;
 	
 	struct pollfd new_poll;
 	new_poll.fd = Socket_fd;
@@ -206,7 +267,7 @@ void	Server::Server_connection(int port, std::string password)
 					std::cout << "Client <" <<  incoming_fd << "> connected" << std::endl;
 				}
 				else
-					receive_data(fdes[i].fd);
+					receive_data(fdes[i].fd, password);
 			}
 		}
 	}

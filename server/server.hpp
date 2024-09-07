@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/07 11:17:09 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/07 16:54:18 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,6 @@
 #include <csignal>
 #include <map>
 
-#define ERR_PASSWDMISMATCH "Password incorrect"
-#define ERR_NEEDMOREPARAMS "Not enough parameters"
 
 
 class	Client
@@ -38,6 +36,8 @@ class	Client
 		int					Client_fd;
 		std::string			Client_ip;
 		bool				is_authenticated;
+		std::string			Client_nickname;
+
 	public:
 		int		getClient_fd();
 		
@@ -45,6 +45,15 @@ class	Client
 		void	setClient_ip(std::string ip);
 
 		void	set_authenticated();
+		
+		static	bool				pass_received;
+		static	bool				nick_received;
+		static	bool				user_received;
+
+		//set client nickname
+		void	setClient_nickname(std::string nickname);
+		std::string	getClient_nickname();
+
 };
 
 class	Server
@@ -65,7 +74,7 @@ class	Server
 		static bool signal_received_flag;
 		static void SignalHandler(int signum);
 
-		void	receive_data(int fd);
+		void	receive_data(int fd, std::string password);
 		void	close_allfds();
 
 		//ge
