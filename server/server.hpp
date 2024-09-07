@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/25 14:35:15 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/07 11:17:09 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,11 @@
 #include <arpa/inet.h>
 #include <poll.h>
 #include <csignal>
+#include <map>
+
+#define ERR_PASSWDMISMATCH "Password incorrect"
+#define ERR_NEEDMOREPARAMS "Not enough parameters"
+
 
 class	Client
 {
@@ -48,7 +53,7 @@ class	Server
 		int					Socket_fd;
 		struct sockaddr_in	Server_addr;
 		std::vector<struct pollfd > fdes;
-		std::vector<Client> client_vec;
+		std::map<int , Client> client_info;
 	public:
 	
 		void	init_Socket(int domain, int type, int protocol, int port);
@@ -62,6 +67,8 @@ class	Server
 
 		void	receive_data(int fd);
 		void	close_allfds();
+
+		//ge
 };
 
 

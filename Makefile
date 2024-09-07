@@ -1,8 +1,8 @@
 NAME = ircserv
 CPP = c++
 FLAGS = -Wall -Wextra -Werror -std=c++98
-INC = server/server.hpp authentication/auto.hpp
-SRC = server/server.cpp main.cpp authentication/auth.cpp
+INC = server/server.hpp auth/authentication.hpp
+SRC = server/server.cpp main.cpp auth/authentication.cpp
 OBJ = $(SRC:.cpp=.o)
 
 all: $(NAME)

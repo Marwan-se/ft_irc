@@ -6,21 +6,24 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/26 17:10:43 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/07 11:47:16 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.hpp"
-#include "../authentication/auth.hpp"
 
+#include <cctype>
 #include <cstddef>
 #include <iostream>
 #include <iterator>
 #include <string>
 #include <sys/poll.h>
+#include <sstream>
 #include <sys/signal.h>
 #include <vector>
+#include <map>
 #include <cstring>
+
 
 bool	Server::signal_received_flag = false;
 
@@ -36,10 +39,22 @@ void Server::SignalHandler(int signum)
 	Server::signal_received_flag = true;
 }
 
+// void	Server::close_allfds()
+// {
+// 	for (size_t i = 0; i < client_vec.size(); i++)
+// 		close(client_vec[i].getClient_fd());
+// 	if (Socket_fd != -1)
+// 	{
+// 		std::cout << "Server <" << Socket_fd << "> disconnected" << std::endl;
+// 		std::cout << "All clients disconnected !!!." << std::endl;
+// 		close(Socket_fd);
+// 	}
+// }
+
 void	Server::close_allfds()
 {
-	for (size_t i = 0; i < client_vec.size(); i++)
-		close(client_vec[i].getClient_fd());
+	for (size_t i = 0; i < client_info.size(); i++)
+		close(client_info[i].getClient_fd());
 	if (Socket_fd != -1)
 	{
 		std::cout << "Server <" << Socket_fd << "> disconnected" << std::endl;
@@ -108,26 +123,36 @@ void	Server::receive_data(int fd)
 				break;
 			}
 		}
-		for(size_t i = 0; i < client_vec.size(); i++)
+
+		for (size_t i = 0; i < client_info.size(); i++)
 		{
-			if (client_vec[i].getClient_fd() == fdes[i].fd)
+			if (client_info[i].getClient_fd() == fdes[i].fd)
 			{
-				client_vec.erase(client_vec.begin() + i);
+				client_info.erase(i);
 				break;
 			}
 		}
+
 		close(fd);
 	}
 	else
 	{
-		buffer[data] = '\0';
-		std::cout << "Client <" << fd << "> sent: " << buffer;
-		Auth auth;
-		auth.authenticate(buffer);
-		//parse the client input
-		auth.parse_input(buffer);
+		// buffer[data] = '\0';
+		// std::cout << "Client <" << fd << "> sent: " << buffer;
+		std::stringstream line(buffer);
+	
+		std::string command;
+		std::string rest_of_data;
 		
-		// authenticate client
+		line >> command;
+		//toupper for command
+
+		//store the command in a variable && store the rest of the data in another variable
+		line >> rest_of_data;
+		
+		//check if the command is PASS NICK or USER
+		
+		
 	}
 	
 }
@@ -159,7 +184,6 @@ void	Server::Server_connection(int port, std::string password)
 				if (fdes[i].fd == Socket_fd)
 				{
 					Client client;
-					std::vector<Client>	client_vec;
 					struct sockaddr_in client_addr;
 					struct pollfd new_client;
 					socklen_t client_len = sizeof(client_addr);
@@ -175,7 +199,9 @@ void	Server::Server_connection(int port, std::string password)
 
 					client.setClient_fd(incoming_fd);
 					client.setClient_ip(inet_ntoa(client_addr.sin_addr));
-					client_vec.push_back(client);
+					// client_vec.push_back(client);
+					client_info.insert(std::pair<int, Client>(incoming_fd, client));
+					std::cout << "Client <" << client_info[incoming_fd].getClient_fd() << std::endl;
 					fdes.push_back(new_client);
 					std::cout << "Client <" <<  incoming_fd << "> connected" << std::endl;
 				}
