@@ -6,13 +6,15 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/07 16:54:18 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/08 13:17:55 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
+#include "replies.hpp"
+#include "client.hpp"
 
 #include <iostream>
 #include <string>
@@ -28,33 +30,6 @@
 #include <csignal>
 #include <map>
 
-
-
-class	Client
-{
-	private:
-		int					Client_fd;
-		std::string			Client_ip;
-		bool				is_authenticated;
-		std::string			Client_nickname;
-
-	public:
-		int		getClient_fd();
-		
-		void	setClient_fd(int fd);
-		void	setClient_ip(std::string ip);
-
-		void	set_authenticated();
-		
-		static	bool				pass_received;
-		static	bool				nick_received;
-		static	bool				user_received;
-
-		//set client nickname
-		void	setClient_nickname(std::string nickname);
-		std::string	getClient_nickname();
-
-};
 
 class	Server
 {

@@ -1,14 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   authentication.cpp                                 :+:      :+:    :+:   */
+/*   replies.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/09/07 10:08:19 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/07 19:45:14 by msekhsou         ###   ########.fr       */
+/*   Created: 2024/09/08 12:10:29 by msekhsou          #+#    #+#             */
+/*   Updated: 2024/09/08 12:28:31 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// #include "server/server.hpp"
+#ifndef REPLIES_HPP
+# define REPLIES_HPP
 
+// # include "server.hpp"
+
+// #define ERR_ALREADYREGISTERED ": 462 " + nickname + " :You may not reregister !"
+
+#endif
