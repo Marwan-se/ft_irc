@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 14:17:28 by msaidi            #+#    #+#             */
-/*   Updated: 2024/08/17 17:05:09 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/07 15:17:50 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 #include <string>
 #include "ChannelFile.hpp"
+#include "../server.hpp"
+#include <map>
 
 
 class Message
@@ -34,7 +36,7 @@ class Message
         void setCommand(std::string command);
 };
 
-void parsingMsg(char *msg, Message *message, std::vector<Channel> *channels);
+void parsingMsg(char *msg, std::map<std::string, Channel> &channels, Client &client);
 
 
 

@@ -6,17 +6,60 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/19 17:16:26 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/08 11:28:12 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.hpp"
+#include "commands/ChannelFile.hpp"
 #include "commands/Message.hpp"
-#include <sys/_types/_ssize_t.h>
-#include <sys/poll.h>
-#include <vector>
-#include "./commands/ChannelFile.hpp"
+// #include "../authentication/auth.hpp"
 
+#include <cstddef>
+#include <iostream>
+#include <iterator>
+#include <string>
+#include <sys/poll.h>
+#include <sys/signal.h>
+#include <vector>
+#include <cstring>
+
+
+bool	Server::signal_received_flag = false;
+
+void	Client::set_authenticated()
+{
+	is_authenticated = false;
+}
+
+void Client::sendMsg(const std::string &message)
+{
+	send(this->Client_fd, message.c_str(), message.length(), 0);
+}
+
+void Server::SignalHandler(int signum)
+{
+	(void)signum;
+	std::cout << std::endl << "Signal Received!" << std::endl;
+	Server::signal_received_flag = true;
+}
+
+void	Server::close_allfds()
+{
+	for (size_t i = 0; i < client_vec.size(); i++)
+		close(client_vec[i].getClient_fd());
+	if (Socket_fd != -1)
+	{
+		std::cout << "Server <" << Socket_fd << "> disconnected" << std::endl;
+		std::cout << "All clients disconnected !!!." << std::endl;
+		close(Socket_fd);
+	}
+}
+
+std::vector<Client> Server::getClient_vec()
+{
+	return client_vec;
+}
 
 
 struct sockaddr_in	Server::getServer_addr()
@@ -34,6 +77,16 @@ int	Client::getClient_fd()
 	return (Client_fd);
 }
 
+std::string		Client::getClient_nick()
+{
+	return this->nick;
+}
+std::string		Client::getClient_user()
+{
+	return this->user;
+}
+
+
 void	Client::setClient_fd(int fd)
 {
 	Client_fd = fd;
@@ -44,53 +97,86 @@ void	Client::setClient_ip(std::string ip)
 	Client_ip = ip;
 }
 
-void	Client::setClient_nick(std::string nick)
-{
-	Client_nick = nick;
-}
-
-void	Client::sendMsg(std::string msg)
-{
-	send(Client_fd, msg.c_str(), msg.length(), 0);
-}
-
 void	Server::init_Socket(int domain, int type, int protocol, int port)
 {
-	//define address structure
 	Server_addr.sin_family = domain;
 	Server_addr.sin_port = htons(port);
 	Server_addr.sin_addr.s_addr = INADDR_ANY;
-	//establish socket
 	Socket_fd = socket(domain, type, protocol);
 	if (Socket_fd < 0)
 		throw (std::runtime_error("Error: socket failed"));
-	//bind socket
+	int opt = 1;
+	if (setsockopt(Socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+		throw (std::runtime_error("Error: setsockopt failed"));
+	if (fcntl(Socket_fd, F_SETFL, O_NONBLOCK) < 0)
+		throw (std::runtime_error("Error: fcntl failed"));
 	if (bind(Socket_fd, (struct sockaddr *)&Server_addr, sizeof(Server_addr)) < 0)
 		throw (std::runtime_error("Error: bind failed"));
 	if (listen(Socket_fd, SOMAXCONN) < 0)
 		throw (std::runtime_error("Error: listen failed"));
 }
 
-void	Server::Server_connection(int port)
+void	Server::receive_data(int fd)
+{
+	std::map<std::string, Channel> channels;
+
+	char buffer[1024];
+	memset(buffer, 0, sizeof(buffer));
+	ssize_t	data = recv(fd, buffer, sizeof(buffer) -1, 0);
+	if (data <= 0)
+	{
+		std::cout << "Client <" << fd << "> disconnected" << std::endl;
+		for (size_t i = 0; i < fdes.size(); i++)
+		{
+			if (fdes[i].fd == fd)
+			{
+				fdes.erase(fdes.begin() + i);
+				break;
+			}
+		}
+		for(size_t i = 0; i < client_vec.size(); i++)
+		{
+			if (client_vec[i].getClient_fd() == fdes[i].fd)
+			{
+				client_vec.erase(client_vec.begin() + i);
+				break;
+			}
+		}
+		close(fd);
+	}
+	else
+	{
+		buffer[data] = '\0';
+		
+
+		Server::parsingMsg(buffer, client_info[fd]);
+		// std::cout << "Client <" << fd << "> sent: " << buffer;
+		// authenticate client
+		// Auth auth;
+		// auth.authenticate(buffer);
+	}
+	
+}
+
+void	Server::Server_connection(int port, std::string password)
 {
 	init_Socket(AF_INET, SOCK_STREAM, 0, port);
+
+	(void)password;
 	
 	struct pollfd new_poll;
 	new_poll.fd = Socket_fd;
 	new_poll.events = POLLIN;
 	new_poll.revents = 0;
-	
 	fdes.push_back(new_poll);
-	
-	
-	int timeout = -1;
-	
-	std::cout << "Server <" << Socket_fd << "> is connected" << std::endl;
-	std::cout << "Waiting for accept...." << std::endl;
 
-	while (1)
+
+	int timeout = -1;
+	std::cout << "Server <" << Socket_fd << "> connected" << std::endl;
+	std::cout << "Waiting to connect clients..." << std::endl;
+	while (Server::signal_received_flag == false)
 	{
-		if (poll(fdes.data(), fdes.size(), timeout) < 0)
+		if ((poll(&fdes[0], fdes.size(), timeout) < 0) && (Server::signal_received_flag == false))
 			throw (std::runtime_error("Error: poll failed"));
 		for (size_t i = 0; i < fdes.size(); i++)
 		{
@@ -99,11 +185,11 @@ void	Server::Server_connection(int port)
 				if (fdes[i].fd == Socket_fd)
 				{
 					Client client;
-					std::vector<Client>	clientsss;
 					struct sockaddr_in client_addr;
 					struct pollfd new_client;
 					socklen_t client_len = sizeof(client_addr);
-					int incoming_fd = accept(Socket_fd, (struct sockaddr *)&client_addr, &client_len);
+
+					int incoming_fd = accept(Socket_fd, (sockaddr *)&(client_addr), &client_len);
 					if (incoming_fd < 0)
 						throw (std::runtime_error("Error: accept failed"));
 					if (fcntl(incoming_fd, F_SETFL, O_NONBLOCK) < 0)
@@ -114,35 +200,15 @@ void	Server::Server_connection(int port)
 
 					client.setClient_fd(incoming_fd);
 					client.setClient_ip(inet_ntoa(client_addr.sin_addr));
-					clientsss.push_back(client);
+					client_vec.push_back(client);
 					fdes.push_back(new_client);
-					std::cout << "Client <" << client.getClient_fd() << "> is connected" << std::endl;
-					
+					std::cout << "Client <" <<  incoming_fd << "> connected" << std::endl;
 				}
-				
 				else
-				{
-					char buffer[512];
-					bzero(buffer, sizeof(buffer));
-
-					ssize_t	data = recv(fdes[i].fd, buffer, sizeof(buffer), 0);
-					if (data < 0)
-							throw (std::runtime_error("Client disconnected"));
-					else
-					{
-						buffer[data] = '\0';
-						Message msg;
-						parsingMsg(buffer, &msg, &channelsgrp, &clientsss);
-							// std::cout << "Command: " << msg.getCommand() << std::endl;
-							// std::cout << "Target: " << msg.getTarget() << std::endl;
-							// std::cout << "msg: " << msg.getMsg() << std::endl;
-							// std::cout << "channel name: " << channelsgrp[0].getName() << std::endl;
-							// std::cout << "channel topic: " << channelsgrp[0].getTopic() << std::endl;
-							// std::cout << "channel members: " << channelsgrp[0].getMembers()[0] << " - " << channelsgrp[0].getMembers()[1] << std::endl;
-					}
-				}
+					receive_data(fdes[i].fd);
 			}
+			
 		}
 	}
+	close_allfds();
 }
-
