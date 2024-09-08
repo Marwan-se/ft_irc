@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:28 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/07 10:53:44 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/07 19:03:32 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ int main(int ac, char **av)
 	}
 	catch(const std::exception& e)
 	{
-		// server.close_allfds();
+		server.close_allfds();
 		std::cerr << e.what() << '\n';
 	}
 	std::cout << "Server is closed!" << std::endl;
