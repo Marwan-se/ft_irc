@@ -6,12 +6,13 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 14:17:11 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/08 11:32:27 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/08 19:29:56 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Message.hpp"
 
+#include <cctype>
 #include <deque>
 #include <iterator>
 #include <string>
@@ -64,40 +65,107 @@ void Message::setCommand(std::string command)
 	this->command = command;
 }
 
-// void handlingINV(Message *message, Client client)
-// {
-// 	bool found = false;
-// 	if (message->getCommand() == "INVITE"){
-		
-// 	}
-// }
-
-bool isMember(Channel chn, Client client)
+Client& Server::getClientByNick(std::string nick)
 {
-	for (std::vector<Client>::iterator it = chn.getMembers().begin(); it != chn.getMembers().end(); it++)
+	std::map<int, Client>::iterator it = client_info.begin();
+	while( it != client_info.end())
 	{
-		if (client.getClient_nick() == it->getClient_nick())
+		if (nick == it->second.getClient_nick())
+			return it->second;
+		it++;
+	}
+	return it->second;
+}
+
+bool client_exist(std::string nickname, std::vector<Client> &clients)
+{
+	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); it++)
+	{
+		if (nickname == it->getClient_nick())
 			return true;
 	}
 	return false;
 }
 
 
-void handlingTOPIC(Message message, std::map<std::string, Channel> channels, Client client)
+bool isMember(Channel chn, std::string client)
+{
+	for (std::vector<Client>::iterator it = chn.getMembers().begin(); it != chn.getMembers().end(); it++)
+	{
+		if (client == it->getClient_nick())
+			return true;
+	}
+	return false;
+}
+
+void Server::handlingINV(Message message, std::map<std::string, Channel> &channels, Client &client)
+{
+	if (message.getCommand() == "INVITE")
+	{
+		if (message.getTarget().empty() || message.getMsg().empty())
+		{
+			std::string m = ERR_NEEDMOREPARAMS(client.getClient_nick(), "INVITE");
+			send(client.getClient_fd(), m.c_str(), m.length(),0);
+			return ;
+		}
+		if (channels.find(message.getMsg()) == channels.end())
+		{
+			std::string m = ERR_NOSUCHCHANNEL(client.getClient_nick(), message.getMsg());
+			send(client.getClient_fd(), m.c_str(), m.length(),0);
+			return ;
+		}
+		if (!client_exist(message.getTarget(), client_vec))
+		{
+			std::string m = ERR_NOSUCHNICK(client.getClient_nick(), message.getTarget());
+			send(client.getClient_fd(), m.c_str(), m.length(),0);
+			return ;
+		}
+		if (isMember(channels[message.getMsg()], message.getTarget()))
+		{
+			std::string m = ERR_USERONCHANNEL(client.getClient_nick(), message.getTarget(), message.getMsg());
+			send(client.getClient_fd(), m.c_str(), m.length(),0);
+			return ;
+		}
+		else
+		{
+			Client invited = getClientByNick(message.getTarget());
+			std::vector<std::string> tmp = channels[message.getMsg()].getInvited();
+			if (std::find(tmp.begin(), tmp.end(), invited.getClient_nick()) == tmp.end())
+				channels[message.getMsg()].getInvited().push_back(invited.getClient_nick());
+
+			std::string m = RPL_INVITING(client.getClient_ip(), client.getClient_nick(), message.getTarget(), message.getMsg());
+			send(client.getClient_fd(), m.c_str(), m.length(),0);
+			m.clear();
+
+			m = RPL_INVITE(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), message.getMsg());
+			send(invited.getClient_fd(), m.c_str(), m.length(), 0);
+		}
+	}
+}
+
+
+void handlingTOPIC(Message message, std::map<std::string, Channel> channels, Client &client)
 {
 	if (message.getCommand() == "TOPIC")
 	{
+		if (message.getTarget().empty())
+		{
+				std::string m = ERR_NEEDMOREPARAMS(client.getClient_nick(), "TOPIC");
+				send(client.getClient_fd(), m.c_str(), m.length(),0);
+
+		}
 		if (message.getTarget().at(0) != '#' || channels.find(message.getTarget()) == channels.end())
 		{
 		   std::cout << "Error: channel not found" << std::endl;
 		   return ;
         }
-        if (isMember(channels[message.getTarget()], client))
+        if (isMember(channels[message.getTarget()], client.getClient_nick()))
 		{
 			if (!message.getMsg().empty())
 			{
-				channels[message.getTarget()].setTopic(message.getMsg());
-				// send topic update to all members
+				//show topic of the channel 
+				std::string m = RPL_TOPIC(client.getClient_nick(), channels[message.getTarget()].getName(), channels[message.getTarget()].getTopic());
+				send(client.getClient_fd(), m.c_str(), m.length(), 0);
 			}
 			else 
 			{
@@ -106,9 +174,17 @@ void handlingTOPIC(Message message, std::map<std::string, Channel> channels, Cli
 					std::string m = RPL_NOTOPIC(client.getClient_nick(), channels[message.getTarget()].getName());
 					send(client.getClient_fd(), m.c_str(), m.length(),0);
 				}
-				else
+				else if (client.isOp)
 				{
+					// std::time_t topicTime = std::time(NULL);
+					channels[message.getTarget()].setTopic(message.getMsg());
 					std::string m = RPL_TOPIC(client.getClient_nick(), channels[message.getTarget()].getName(), channels[message.getTarget()].getTopic());
+					send(client.getClient_fd(), m.c_str(), m.length(),0);
+					//brodcast to all clients of the channel that topic is changed.
+				}
+				else{
+					//not an operator
+					std::string m = ERR_CHANOPRIVSNEEDED(client.getClient_nick(), channels[message.getTarget()].getName());
 					send(client.getClient_fd(), m.c_str(), m.length(),0);
 				}
 			}
@@ -118,7 +194,6 @@ void handlingTOPIC(Message message, std::map<std::string, Channel> channels, Cli
 			std::string m = ERR_NOTONCHANNEL(client.getClient_nick(), channels[message.getTarget()].getName());
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
 		}
-	
 	}
 }
 
@@ -192,6 +267,14 @@ void handlingTOPIC(Message message, std::map<std::string, Channel> channels, Cli
 // 		}
 // 	}
 // }
+std::string toUpper(std::string str)
+{
+	for (int i = 0; (unsigned long)i < str.length(); ++i)
+	{
+		str[i] = std::toupper(str[i]);
+	}
+	return str;
+}
 
 void Server::parsingMsg(char *msg, Client &client)
 {
@@ -204,13 +287,14 @@ void Server::parsingMsg(char *msg, Client &client)
 	}
 	std::string sample;
 	ss >> sample;
-		if (sample == "INVITE"){
+	std::string cmdUpper = toUpper(sample);
+		if (cmdUpper == "INVITE"){
 			message.setCommand("INVITE");
 		}
-		else if (sample == "TOPIC"){
+		else if (cmdUpper == "TOPIC"){
 			message.setCommand("TOPIC");
 		}
-		else if (sample == "MODE"){
+		else if (cmdUpper == "MODE"){
 			message.setCommand("MODE");
 		}
 
@@ -227,13 +311,9 @@ void Server::parsingMsg(char *msg, Client &client)
 	ss >> sample;
 	message.setMsg(sample);
 	sample.clear();
-	ss >> sample;
 
-	if (!sample.empty()){
-		throw std::runtime_error("Error: too much params");
-	}
 	
-	// handlingINV(message, client);
+	handlingINV(message, channels, client);
 	handlingTOPIC(message, channels, client);
 	// handlingMODE(message, channels, clients);
 

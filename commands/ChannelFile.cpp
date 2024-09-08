@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 10:41:37 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/08 11:30:00 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/08 19:32:32 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,10 @@ std::vector<Client> &Channel::getMembers()
 {
     return this->members;
 }
+std::vector<std::string> &Channel::getInvited()
+{
+    return this->invited;
+}
 
 void Channel::setName(std::string name)
 {
@@ -65,6 +69,25 @@ void Channel::removeMember(Client &member)
         }
     }
 }
+
+void Channel::addInvited(std::string Invited)
+{
+    this->invited.push_back(Invited);
+}
+
+
+void Channel::removeInvited(std::string Invited)
+{
+    for (std::vector<std::string>::iterator it = this->invited.begin(); it != this->invited.end(); it++)
+    {
+        if (*it == Invited)
+        {
+            this->invited.erase(it);
+            return;
+        }
+    }
+}
+
 
 
 Channel::~Channel()

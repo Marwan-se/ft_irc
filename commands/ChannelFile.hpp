@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 10:34:01 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/08 11:30:09 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/08 19:31:21 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ class Channel
     std::string name;
     std::string topic;
     std::vector<Client > members;
-    std::vector<Client> invited;
+    std::vector<std::string> invited;
     // int lim;
     std::string key;
     public:
@@ -38,11 +38,15 @@ class Channel
     std::string getName();
     std::string getTopic();
     std::vector<Client> &getMembers();
+    std::vector<std::string> &getInvited();
 
     void setName(std::string name);
     void setTopic(std::string topic);
     void addMember(Client &member);
     void removeMember(Client &member);
+    void addInvited(std::string Invited);
+    void removeInvited(std::string Invited);
+
 
     ~Channel();
 };

@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/08 11:28:12 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/08 19:16:07 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,10 @@ std::vector<Client> Server::getClient_vec()
 	return client_vec;
 }
 
+std::string	Client::getClient_ip()
+{
+	return this->Client_ip;
+}
 
 struct sockaddr_in	Server::getServer_addr()
 {
