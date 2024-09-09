@@ -6,11 +6,12 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/08 13:17:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/08 15:27:10 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/08 22:25:58 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "client.hpp"
+#include <string>
 
 Client::Client()
 {
@@ -59,4 +60,14 @@ void	Client::setClient_fd(int fd)
 void	Client::setClient_ip(std::string ip)
 {
 	Client_ip = ip;
+}
+
+std::string	Client::getClient_ip()
+{
+	return (Client_ip);
+}
+
+std::string	Client::get_message()
+{
+	return (message);
 }

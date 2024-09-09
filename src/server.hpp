@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/08 13:17:55 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/08 21:17:43 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,6 @@ class	Server
 		void	receive_data(int fd, std::string password);
 		void	close_allfds();
 
-		//ge
 };
 
 

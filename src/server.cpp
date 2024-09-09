@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/08 15:35:28 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/09 02:10:26 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,10 +98,8 @@ void	Server::receive_data(int fd, std::string password)
 	ssize_t	data = recv(fd, buffer, sizeof(buffer) -1, 0);
 	if (data <= 0)
 	{
-		if (client_info[fd].nick_received == true)
-			std::cout << "Client <" << client.getClient_nickname() << "> disconnected" << std::endl;
-		else if (client_info[fd].nick_received == false)
-			std::cout << "Guest <" << fd << "> disconnected" << std::endl;
+		std::cout << "Client <" << client.getClient_nickname() << "> disconnected" << std::endl;
+
 		for (size_t i = 0; i < fdes.size(); i++)
 		{
 			if (fdes[i].fd == fd)
@@ -110,15 +108,15 @@ void	Server::receive_data(int fd, std::string password)
 				break;
 			}
 		}
-
-		for (size_t i = 0; i < client_info.size(); i++)
-		{
-			if (client_info[i].getClient_fd() == fdes[i].fd)
-			{
-				client_info.erase(i);
-				break;
-			}
-		}
+		// for (size_t i = 0; i < client_info.size(); i++)
+		// {
+		// 	if (client_info[i].getClient_fd() == fdes[i].fd)
+		// 	{
+		// 		client_info.erase(i);
+		// 		break;
+		// 	}
+		// }		
+		client_info.erase(fd);
 
 		close(fd);
 	}
@@ -127,6 +125,8 @@ void	Server::receive_data(int fd, std::string password)
 		std::stringstream line(buffer);
 		std::string command;
 		std::string message;
+		std::string rest_of_message;
+		std::string message_comma;
 
 		line >> command;		
 		client.set_command(command);
@@ -136,6 +136,15 @@ void	Server::receive_data(int fd, std::string password)
 
 		line >> message;
 		client.set_message(message);
+
+		std::getline(line, rest_of_message);
+
+		// std::cout << "msg: " << message << std::endl;
+		// if (rest_of_message.empty())
+		// 	std::cout << "rest: empty" << std::endl;
+		// else
+		// 	std::cout << "rest: " << rest_of_message  << std::endl;
+		
 		
 		if (command == "PASS")
 		{
@@ -168,17 +177,49 @@ void	Server::receive_data(int fd, std::string password)
 		{
 			if (message.empty())
 			{
-				std::cerr << "Error: No nickname entered" << std::endl;
+				std::string msg = ": 431 " + client.getClient_nickname() + " :No nickname given" + "\r\n";
+				send(fd, msg.c_str(), msg.length(), 0);
 				return;
+			}
+			if (message[0] == ':')
+			{
+				message += rest_of_message;
+		 		message_comma = message.substr(1, message.length() - 1);
+				if (message_comma.find_first_of("#:,*?!@%. '\t'") != std::string::npos || message_comma[0] == '$' || message_comma[0] == '&' \
+					|| isdigit(message_comma[0]))
+				{
+					std::string msg = ": 432 " + client.getClient_nickname() + " :Erroneous nickname" + "\r\n";
+					send(fd, msg.c_str(), msg.length(), 0);
+					return;
+				}
+				client_info[fd].setClient_nickname(message_comma);
+				client_info[fd].nick_received = true;
+				std::cout << "nick is: " << client_info[fd].getClient_nickname() << std::endl;
 			}
 			else
 			{
+				std::cout << "message: " << "hoooooooooolaaaaaaaa" << std::endl;
+				if (message.find_first_of("#:,*?!@%. '\t'") != std::string::npos || message[0] == '$' || message[0] == '&' \
+					|| isdigit(message[0]))
+				{
+				std::cout << "message: " << "hooooooooool 33333" << std::endl;
+					std::string msg = ": 432 " + client.getClient_nickname() + " :Erroneous nickname" + "\r\n";
+					send(fd, msg.c_str(), msg.length(), 0);
+					return;
+				}
+				for (std::map<int, Client>::iterator it = client_info.begin(); it != client_info.end(); it++)
+				{
+					if (it->second.getClient_nickname() == message && it->first != fd)
+					{
+						std::string msg = ": 433 " + client.getClient_nickname() + " " + message + " :Nickname is already in use" + "\r\n";
+						send(fd, msg.c_str(), msg.length(), 0);
+						return;
+					}
+				}
 				client_info[fd].setClient_nickname(message);
 				client_info[fd].nick_received = true;
-				// handle the nickname cases
-				//1. if the nickname is already in use in another client
-				
-				
+				std::cout << "nick is: " << client_info[fd].getClient_nickname() << std::endl;
+				// std::cout << "nick_received: " << client_info[fd].nick_received << std::endl;
 			}
 		}
 		if (command == "USER")
@@ -187,7 +228,6 @@ void	Server::receive_data(int fd, std::string password)
 			
 		}
 		// print the client fd and the client nickname
-		
 		
 	}
 	
@@ -231,6 +271,7 @@ void	Server::Server_connection(int port, std::string password)
 
 					client.setClient_fd(incoming_fd);
 					client.setClient_ip(inet_ntoa(client_addr.sin_addr));
+					// std::cout << "client ip: " << client.getClient_ip() << std::endl;
 					// client_vec.push_back(client);
 					client_info.insert(std::pair<int, Client>(incoming_fd, client));
 					fdes.push_back(new_client);
