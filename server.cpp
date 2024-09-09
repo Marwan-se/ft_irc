@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/05 15:26:47 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/09 13:56:40 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,42 @@
 #include <sys/signal.h>
 #include <vector>
 #include <cstring>
+#include <map>
+
 
 bool	Server::signal_received_flag = false;
+
+void	Client::sethostname(std::string n)
+{
+	this->hostname = n;
+}
+
+void	Client::setClient_nick(std::string n)
+{
+	this->nick = n;
+}
+
+std::string		Client::getClient_nick()
+{
+	return this->nick;
+}
+
+std::string		Client::getClient_ip()
+{
+	return this->Client_ip;
+}
+
+std::string		Client::getClient_user()
+{
+	return this->user;
+}
+
+std::string		Client::gethostname()
+{
+
+	return this->hostname;
+}
+
 
 
 void Server::SignalHandler(int signum)
@@ -52,8 +86,8 @@ void	Server::delete_client_data_inpoll(int fd)
 
 void	Server::close_allfds()
 {
-	for (size_t i = 0; i < client_vec.size(); i++)
-		close(client_vec[i].getClient_fd());
+	// for (size_t i = 0; i < client_vec.size(); i++)
+	// 	close(client_vec[i].getClient_fd());
 	if (Socket_fd != -1)
 	{
 		std::cout << "Server <" << Socket_fd << "> disconnected" << std::endl;
@@ -115,20 +149,23 @@ void	Server::receive_data(int fd)
 	{
 		std::cout << "Client <" << fd << "> disconnected" << std::endl;
 		delete_client_data_inpoll(fd);
-		for(size_t i = 0; i < client_vec.size(); i++)
-		{
-			if (client_vec[i].getClient_fd() == fdes[i].fd)
-			{
-				client_vec.erase(client_vec.begin() + i);
-				break;
-			}
-		}
-		close(fd);
+		// for(size_t i = 0; i < client_vec.size(); i++)
+		// {
+		// 	if (client_vec[i].getClient_fd() == fdes[i].fd)
+		// 	{
+		// 		client_vec.erase(client_vec.begin() + i);
+		// 		break;
+		// 	}
+		// }
+		// close(fd);
 	}
 	else
 	{
 		buffer[data] = '\0';
-		std::cout << "Client <" << fd << "> sent: " << buffer;
+		client_info[fd].setClient_nick("yah");
+		client_info[fd].sethostname("locall");
+		client_info[fd].setClient_fd(fd);
+		Server::parsingMsg(buffer, client_info[fd]);
 	}
 	
 }

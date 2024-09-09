@@ -3,17 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/23 04:42:12 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/09 21:28:24 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVER_HPP
-# define SERVER_HPP
+#pragma once
 
 
+
+// #include "commands/Message.hpp"
+#include "commands/ChannelFile.hpp"
 #include <iostream>
 #include <string>
 #include <sys/poll.h>
@@ -26,27 +28,50 @@
 #include <arpa/inet.h>
 #include <poll.h>
 #include <csignal>
+#include <map>
 
+
+class Channel;
+class	Server;
 class	Client
 {
 	private:
 		int					Client_fd;
 		std::string			Client_ip;
-	public:
-		int		getClient_fd();
+		std::string			nick;
+		std::string			user;
+		std::string			hostname;
 		
+		bool				is_authenticated;
+	public:
+		bool				isOp;
+		int		getClient_fd();
+		std::string		getClient_nick();
+		std::string		getClient_user();
+		std::string		gethostname();
+		std::string		getClient_ip();
+		
+		void	setClient_nick(std::string n);
+		void	sethostname(std::string n);
 		void	setClient_fd(int fd);
 		void	setClient_ip(std::string ip);
+		void	set_authenticated();
+		void sendMsg(const std::string &message);
 };
 
+class	Client;
+class Channel;
+class Message;
 class	Server
 {
 	private:
 		int					Socket_fd;
 		struct sockaddr_in	Server_addr;
 		std::vector<struct pollfd > fdes;
-		std::vector<Client> client_vec;
+		std::map<int ,Client> client_info;
+
 	public:
+		std::map<std::string ,Channel> channels;
 	
 		void	init_Socket(int domain, int type, int protocol, int port);
 		void	Server_connection(int port, std::string password);
@@ -61,7 +86,14 @@ class	Server
 		void	close_allfds();
 
 		void	receive_data(int fd);
+		//COMMANDS
+
+		void parsingMsg(char *msg, Client &client);
+		void join(Message &comm, Client &client);
+		void kick(Message &comm, Client &client);
+		Client client_exist(std::string);
+		bool is_member(std::string nick, std::string ch_name);
+		bool is_op(std::string nick, std::string ch_name);
+		void remove_member(std::string nick, std::string ch_name);
 };
 
-
-#endif

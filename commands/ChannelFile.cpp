@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ChannelFile.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
+/*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 10:41:37 by msaidi            #+#    #+#             */
-/*   Updated: 2024/08/17 17:38:41 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/08 19:25:52 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,38 @@
 #include <stdexcept>
 
 
-Channel::Channel(std::string name, std::string topic)
+Channel::Channel()
 {
-    if (name == "")
-        throw std::invalid_argument("Error: Channel name cannot be empty");
-    if (name[0] != '#')
-        throw std::invalid_argument("Error: Channel name must start with #");
-    this->name = name;
-    if ( topic[0] == '#')
-        throw std::invalid_argument("Error: Channel topic cannot start with #");
-    this->topic = topic;
+    this->l = false;
+    this->k = false;
+    this->i = false;
+    this->t = false;
 }
+
+Channel::Channel(std::string n)
+{
+    this->l = false;
+    this->k = false;
+    this->i = false;
+    this->t = false;
+    this->name = n;
+}
+
+int Channel::getlim()
+{
+    return this->lim;
+}
+
+std::string Channel::getkey()
+{
+    return this->key;
+}
+
+void Channel::setkey(std::string p)
+{
+    this->key = p;
+}
+
 
 std::string Channel::getName()
 {
@@ -36,14 +57,13 @@ std::string Channel::getTopic()
     return this->topic;
 }
 
-std::vector<std::string> Channel::getMembers()
+std::vector<Client> &Channel::getMembers()
 {
     return this->members;
 }
-
-std::vector<std::string> Channel::getOps()
+std::vector<std::string> &Channel::getInvited()
 {
-    return this->ops;
+    return this->invited;
 }
 
 void Channel::setName(std::string name)
@@ -51,42 +71,32 @@ void Channel::setName(std::string name)
     this->name = name;
 }
 
+void Channel::setlim(int l)
+{
+    this->lim = l;
+}
+
 void Channel::setTopic(std::string topic)
 {
     this->topic = topic;
 }
 
-void Channel::addMember(std::string member)
+void Channel::addMember(Client &member)
 {
     this->members.push_back(member);
 }
 
-void Channel::addOp(std::string op)
-{
-    this->ops.push_back(op);
-}
 
-void Channel::removeMember(std::string member)
+void Channel::removeMember(Client &member)
 {
-    for (std::vector<std::string>::iterator it = this->members.begin(); it != this->members.end(); it++)
+    (void)member;
+    for (std::vector<Client>::iterator it = this->members.begin(); it != this->members.end(); it++)
     {
-        if (*it == member)
-        {
-            this->members.erase(it);
-            return;
-        }
-    }
-}
-
-void Channel::removeOp(std::string op)
-{
-    for (std::vector<std::string>::iterator it = this->ops.begin(); it != this->ops.end(); it++)
-    {
-        if (*it == op)
-        {
-            this->ops.erase(it);
-            return;
-        }
+        // if (it->getClient_nick() == member.getClient_nick())
+        // {
+        //     this->members.erase(it);
+        //     return;
+        // }
     }
 }
 

@@ -6,17 +6,18 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 14:17:28 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/05 16:52:22 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/09 15:57:37 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MESSAGE_HPP
-# define MESSAGE_HPP
+#pragma once
+
 
 #include <string>
+#include <map>
 #include "ChannelFile.hpp"
 #include "../server.hpp"
-
+#include "RPL.hpp"
 
 
 class Message
@@ -25,19 +26,21 @@ class Message
         std::string command;
         std::string target;
         std::string msg;
+        std::string comm;
+
     public:
         Message();
         ~Message();
         std::string getCommand();
         std::string getTarget();
         std::string getMsg();
+        std::string getComm();
         void setMsg(std::string msg);
+        void setComm(std::string comm);
         void setTarget(std::string target);
         void setCommand(std::string command);
 };
 
-void parsingMsg(char *msg, Message *message, std::vector<Channel> *channels);
-void join(std::string str,Message *message, std::vector<Channel> &channels, std::vector<Client> &clients);
 
 
 
@@ -46,4 +49,3 @@ void join(std::string str,Message *message, std::vector<Channel> &channels, std:
 
 
 
-#endif
