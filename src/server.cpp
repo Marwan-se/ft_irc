@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/10 04:59:42 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/10 15:44:03 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,10 +176,6 @@ void	Server::receive_data(int fd, std::string password)
 			}
 			if (message[0] == ':')
 			{
-				if (message[0] == '\r')
-				{
-					std::cout<< "hooolaaaa" << std::endl;
-				}
 				message += rest_of_message;
 				trimString(message);
 				message_comma = message.substr(1, message.length() - 1);
