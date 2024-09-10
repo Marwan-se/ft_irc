@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/09 21:28:24 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/10 19:38:12 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,9 +91,11 @@ class	Server
 		void parsingMsg(char *msg, Client &client);
 		void join(Message &comm, Client &client);
 		void kick(Message &comm, Client &client);
+		void privmsg(Message &comm , Client &client);
 		Client client_exist(std::string);
 		bool is_member(std::string nick, std::string ch_name);
 		bool is_op(std::string nick, std::string ch_name);
 		void remove_member(std::string nick, std::string ch_name);
+
 };
 

@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/08 21:56:27 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/09 20:51:20 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/10 20:52:08 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,3 +34,7 @@
 # define ERR_NOTONCHANNEL(hostname,client,channel) (":" + hostname + " 442 " + client + " " + channel + " :You're not on that channel\r\n")
 # define ERR_CHANOPRIVSNEEDED(hostname,client,channel) (":" + hostname + " 482 " + client + " " + channel + " :You're not channel operator\r\n")
 # define ERR_USERNOTINCHANNEL(hostname,client,nick,channel) (":" + hostname + " 441 " + client + " " + nick+ " " + channel + " :They aren't on that channel\r\n")
+
+//********PRIVMSG*********//
+
+# define ERR_CANNOTSENDTOCHAN(hostname,client,channel) (":" + hostname + " 404 " + client + " " + channel + " :Cannot send to channel\r\n")
