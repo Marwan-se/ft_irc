@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 17:54:50 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/09 21:28:31 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/10 17:33:43 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,6 +259,13 @@ bool Server::is_op(std::string nick, std::string ch_name)
 
 }
 
+std::string comm_gen(std::string comm)
+{
+	std::string r(comm, 1);
+	if (r[0] != ':')
+		r.erase(r.find(' '));
+	return r;
+}
 
 void Server::kick(Message &comm , Client &client)
 {
@@ -292,22 +299,22 @@ void Server::kick(Message &comm , Client &client)
 			rpl = ERR_NOSUCHCHANNEL(client.gethostname(), client.getClient_nick(), ch_name[l]);
 			send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 		}
-		if (client_exist(client_name[l]).getClient_nick().empty())
+		else if (client_exist(client_name[l]).getClient_nick().empty())
 		{
 			rpl = ERR_NOSUCHNICK(client.gethostname(), client.getClient_nick(), client_name[l]);
 			send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 		}
-		if (!is_member(client.getClient_nick(), ch_name[l]))
+		else if (!is_member(client.getClient_nick(), ch_name[l]))
 		{
 			rpl = ERR_NOTONCHANNEL(client.gethostname(), client.getClient_nick(), ch_name[l]);
 			send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);	
 		}
-		if (!is_op(client_name[l], ch_name[l]))
+		else if (!is_op(client_name[l], ch_name[l]))
 		{
 			rpl = ERR_CHANOPRIVSNEEDED(client.gethostname(), client.getClient_nick(), ch_name[l]);
 			send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);	
 		}
-		if (!is_member(client_name[l], ch_name[l]))
+		else if (!is_member(client_name[l], ch_name[l]))
 		{
 			rpl = ERR_USERNOTINCHANNEL(client.gethostname(), client.getClient_nick(), client_name[l], ch_name[l]);
 			send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);	
@@ -316,9 +323,14 @@ void Server::kick(Message &comm , Client &client)
 		{
 			Client kicked = client_exist(client_name[l]);
 			remove_member(client_name[l], ch_name[l]);
-			rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "KICK" + " " + it->second.getName() + " " + client_name[l] + " " + client.getClient_nick() + "\r\n";
+			if (comm.getComm().empty())
+				rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "KICK" + " " + it->second.getName() + " " + client_name[l] + " " + client.getClient_nick() + "\r\n";
+			else
+				rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "KICK" + " " + it->second.getName() + " " + client_name[l] + " " + client.getClient_nick() + " " + comm_gen(comm.getComm()) + "\r\n";
 			send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 			send(kicked.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 		}
 	}
 }
+
+
