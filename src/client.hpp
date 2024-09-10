@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/08 13:16:09 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/08 22:25:49 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/09 18:06:57 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,10 @@ class	Client
 		
 		bool				pass_received;
 		bool				nick_received;
+		
 		bool				user_received;
+		std::string			user_name;
+		std::string			real_name;
 		
 		int				new_client_nickname;
 		
