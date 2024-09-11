@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/11 16:56:23 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/11 20:18:30 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,10 +41,10 @@ class	Client
 		std::string			nick;
 		std::string			user;
 		std::string			hostname;
+		bool				isOp;
 		
 		bool				is_authenticated;
 	public:
-		bool				isOp;
 		int		getClient_fd();
 		std::string		getClient_nick();
 		std::string		getClient_user();
@@ -57,6 +57,8 @@ class	Client
 		void	setClient_ip(std::string ip);
 		void	set_authenticated();
 		void sendMsg(const std::string &message);
+		bool getisOp();
+		void setisOp(bool x);
 };
 
 class	Client;
@@ -97,6 +99,10 @@ class	Server
 		bool is_op(std::string nick, std::string ch_name);
 		void remove_member(std::string nick, std::string ch_name);
 		void remove_from_ch(Client &client, std::map<std::string, Channel> &ch);
+		void msg_chann(Client client, std::string msg, std::string ch_name, std::string command);
+		void handlingINV(Message message, std::map<std::string, Channel> &channels, Client &client);
+		void handlingMODE(Message message, std::map<std::string, Channel> &channels, Client &client);
+		void handlingTOPIC(Message message, std::map<std::string, Channel> &channels, Client &client);
 
 };
 

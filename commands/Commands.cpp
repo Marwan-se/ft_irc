@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 17:54:50 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/11 17:15:59 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/11 19:40:21 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 #include <sys/socket.h>
 #include <vector>
 #include "ChannelFile.hpp"
-#include "Tools.hpp"
 #include "../server.hpp"
 
 void Server::join(Message &comm , Client &client)
@@ -62,7 +61,7 @@ void Server::join(Message &comm , Client &client)
 				{
 					Channel t_ch(tmpn);
 					t_ch.addMember(client);
-					t_ch.getMembers()[0].isOp = true;
+					t_ch.getMembers()[0].setisOp(true);
 					this->channels.insert(std::pair<std::string, Channel>(tmpn,t_ch));
 					rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "JOIN" + " :" + tmpn + "\r\n";
 					send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
@@ -78,7 +77,7 @@ void Server::join(Message &comm , Client &client)
 					if (is_invite(it->second.getInvited(), client.getClient_nick()))
 					{
 						it->second.addMember(client);
-						if (it->second.t)
+						if (it->second.getTopicRES())
 						{
 							rpl = RPL_TOPIC(client.gethostname(), client.getClient_nick(), tmpn, it->second.getTopic());
 							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
@@ -92,15 +91,15 @@ void Server::join(Message &comm , Client &client)
 						rpl = RPL_ENDOFNAMES(client.gethostname(), client.getClient_nick(), tmpn);
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 					}
-					else if (it->second.l == true && it->second.getMembers().size() >= (size_t)it->second.getlim())
+					else if (it->second.getLimit() == true && it->second.getMembers().size() >= (size_t)it->second.getLimNum())
 					{
 						rpl = ERR_CHANNELISFULL(client.gethostname(), client.getClient_nick(), tmpn);
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 					}
-					else if (it->second.k == false)
+					else if (it->second.getKeyRES() == false)
 					{
 						it->second.addMember(client);
-						if (it->second.t)
+						if (it->second.getTopicRES())
 						{
 							rpl = RPL_TOPIC(client.gethostname(), client.getClient_nick(), tmpn, it->second.getTopic());
 							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
@@ -120,7 +119,7 @@ void Server::join(Message &comm , Client &client)
 						rpl = ERR_BADCHANNELKEY(client.gethostname(), client.getClient_nick(), tmpn);
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 					}
-					else if (it->second.i == true)
+					else if (it->second.getInviteOnly() == true)
 					{
 						rpl = ERR_INVITEONLYCHAN(client.gethostname(), client.getClient_nick(), tmpn);
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
@@ -128,7 +127,7 @@ void Server::join(Message &comm , Client &client)
 					else
 					{
 						it->second.addMember(client);
-						if (it->second.t)
+						if (it->second.getTopicRES())
 						{
 							rpl = RPL_TOPIC(client.gethostname(), client.getClient_nick(), tmpn, it->second.getTopic());
 							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
@@ -274,7 +273,7 @@ void Server::privmsg(Message &comm , Client &client)
 			send(client_exist(client_name[l]).getClient_fd(), rpl.c_str(), rpl.size(), 0);
 		}
 		else 
-			msg_chann(client,msg[0], it);
+			msg_chann(client,msg[0], it->second.getName(), " :" + msg[0]);
 	}
 	
 }

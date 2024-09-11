@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 16:49:06 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/11 17:06:14 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/11 20:18:27 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void Server::remove_member(std::string nick, std::string ch_name)
 		if (it->second.getMembers()[l].getClient_nick() == nick)
 		{
 			if (is_op(nick, ch_name))
-				it->second.getMembers()[l].isOp = false;
+				it->second.getMembers()[l].setisOp(false);
 			it->second.getMembers().erase(it->second.getMembers().begin() + l);
 		}
 	}
@@ -57,7 +57,7 @@ bool Server::is_op(std::string nick, std::string ch_name)
 	std::vector<Client> members = it->second.getMembers();
 	for (size_t l = 0; l < members.size(); l++) 
 	{
-		if (members[l].getClient_nick() == nick && members[l].isOp == true)
+		if (members[l].getClient_nick() == nick && members[l].getisOp() == true)
 			return true;
 	}
 	return false;
@@ -104,9 +104,9 @@ std::string join_members(std::vector<Client> members)
 	std::string tmp;
 	for (size_t l = 0; l < members.size(); l++)
 	{
-		if (members[l].isOp && l == 0)
+		if (members[l].getisOp() && l == 0)
 			tmp = '@' + members[l].getClient_nick();
-		else if (members[l].isOp)
+		else if (members[l].getisOp())
 			tmp = " @" + members[l].getClient_nick();
 		else
 			tmp = " " + members[l].getClient_nick();
@@ -128,7 +128,7 @@ void Server::remove_from_ch(Client &client, std::map<std::string, Channel> &ch)
 			if (members[l].getClient_nick() == client.getClient_nick())
 			{
 				if (is_op(members[l].getClient_nick(), it->second.getName()))
-                    it->second.getMembers()[l].isOp = false;
+                    it->second.getMembers()[l].setisOp(false);
 				it->second.getMembers().erase(members.begin() + l);
 				rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "PART" + " " + it->second.getName() + "\r\n";
 				send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
@@ -139,14 +139,14 @@ void Server::remove_from_ch(Client &client, std::map<std::string, Channel> &ch)
 	}
 }
 
-void msg_chann(Client client, std::string msg, std::map<std::string ,Channel>::iterator it)
+void Server::msg_chann(Client client, std::string msg, std::string ch_name, std::string command)
 {
 	std::string rpl;
-	std::vector<Client> members = it->second.getMembers();
+	std::vector<Client> members = channels[ch_name].getMembers();
 
 	for (size_t l = 0; l < members.size(); l++)
 	{
-		rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "PRIVMSG" + " " + it->second.getName() + " :" + msg + "\r\n";
+		rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + command + " " + ch_name + " :" + msg + "\r\n";
 		send(members[l].getClient_fd(), rpl.c_str(), rpl.size(), 0);
 	}
 }

@@ -6,12 +6,12 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 10:41:37 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/11 11:10:50 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/11 20:31:09 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ChannelFile.hpp"
-#include <stdexcept>
+#include <cstddef>
 
 
 Channel::Channel()
@@ -31,7 +31,7 @@ Channel::Channel(std::string n)
     this->name = n;
 }
 
-int Channel::getlim()
+size_t Channel::getLimNum()
 {
     return this->lim;
 }
@@ -41,7 +41,7 @@ std::string Channel::getkey()
     return this->key;
 }
 
-void Channel::setkey(std::string p)
+void Channel::setKey(std::string p)
 {
     this->key = p;
 }
@@ -71,9 +71,45 @@ void Channel::setName(std::string name)
     this->name = name;
 }
 
-void Channel::setlim(int l)
+void Channel::setLimNum(size_t l)
 {
     this->lim = l;
+}
+
+
+void Channel::setLimit(bool l)
+{
+    this->lim = l;
+}
+
+bool Channel::getTopicRES()
+{
+    return t;
+}
+bool Channel::getKeyRES()
+{
+    return k;
+}
+bool Channel::getInviteOnly()
+{
+    return i;
+}
+bool Channel::getLimit()
+{
+    return l;
+}
+
+void Channel::setTopicRES(bool x)
+{
+    this->t = x;
+}
+void Channel::setInviteOnly(bool x)
+{
+    this->i = x;
+}
+void Channel::setKeyRES(bool x)
+{
+    this->k = x;
 }
 
 void Channel::setTopic(std::string topic)
@@ -102,4 +138,14 @@ void Channel::removeMember(Client &member)
 
 Channel::~Channel()
 {
+}
+
+Client& Channel::getClientMember(std::string nickname)
+{
+    for (std::vector<Client>::iterator it = this->members.begin();it != this->members.end(); it++)
+    {
+        if (it->getClient_nick() == nickname)
+            return *it;
+    }
+    return *this->members.end();
 }
