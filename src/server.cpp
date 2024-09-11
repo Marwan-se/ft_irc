@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/11 05:37:01 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/12 00:53:17 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,14 +117,6 @@ void	Server::receive_data(int fd, std::string password)
 				break;
 			}
 		}
-		// for (size_t i = 0; i < client_info.size(); i++)
-		// {
-		// 	if (client_info[i].getClient_fd() == fdes[i].fd)
-		// 	{
-		// 		client_info.erase(i);
-		// 		break;
-		// 	}
-		// }		
 		client_info.erase(fd);
 
 		close(fd);
@@ -136,7 +128,7 @@ void	Server::receive_data(int fd, std::string password)
 		std::string message;
 		std::string rest_of_message;
 		std::string message_collon;
-		
+
 		
 		line >> command;		
 		client.set_command(command);
@@ -151,11 +143,17 @@ void	Server::receive_data(int fd, std::string password)
 
 		if (command == "PASS")
 		{
+			std::string star("*");
+			if (client.get_authenticated() == true)
+			{
+				if (send(fd, ERR_ALREADYREGISTERED(client.get_hostname(), client.getClient_nickname(), command).c_str(), \
+					ERR_ALREADYREGISTERED(client.get_hostname(), client.getClient_nickname(), command).length(), 0) < 0)
+					std::cerr << "Error: send failed" << std::endl;
+				return;
+			}
 			if (message.empty())
 			{
-				client_info[fd].pass_received = false;
-				if (send(fd, ERR_NEEDMOREPARAMS(client.getClient_nickname()).c_str(), ERR_NEEDMOREPARAMS(client.getClient_nickname()).length(), 0) < 0)
-					std::cerr << "Error: send failed" << std::endl;
+				pass_empty(fd, client_info, client, command);
 				return;
 			}
 			if (message[0] == ':')
@@ -165,16 +163,12 @@ void	Server::receive_data(int fd, std::string password)
 				message_collon = message.substr(1, message.length() - 1);
 				if (message_collon.empty())
 				{
-					client_info[fd].pass_received = false;
-					if (send(fd, ERR_NEEDMOREPARAMS(client.getClient_nickname()).c_str(), ERR_NEEDMOREPARAMS(client.getClient_nickname()).length(), 0) < 0)
-						std::cerr << "Error: send failed" << std::endl;
+					pass_empty(fd, client_info, client, command);
 					return;
 				}
 				if (message_collon != password)
 				{
-					client_info[fd].pass_received = false;
-					if (send(fd, ERR_PASSWDMISMATCH(client.getClient_nickname()).c_str(), ERR_PASSWDMISMATCH(client.getClient_nickname()).length(), 0) < 0)
-						std::cerr << "Error: send failed" << std::endl;
+					bad_pass(fd, client_info, client, command);
 					return;
 				}
 				if (message_collon == password)
@@ -185,9 +179,7 @@ void	Server::receive_data(int fd, std::string password)
 			}
 			if (message != password)
 			{
-				client_info[fd].pass_received = false;
-				if (send(fd, ERR_PASSWDMISMATCH(client.getClient_nickname()).c_str(), ERR_PASSWDMISMATCH(client.getClient_nickname()).length(), 0) < 0)
-					std::cerr << "Error: send failed" << std::endl;
+				bad_pass(fd, client_info, client, command);
 				return;
 			}
 			if (message == password)
@@ -196,15 +188,31 @@ void	Server::receive_data(int fd, std::string password)
 				return;
 			}
 		}
-		if (command == "USER")
+		else if (command == "USER")
 		{
+			if (client.get_authenticated() == true)
+			{
+				if (send(fd, ERR_ALREADYREGISTERED(client.get_hostname(), client.getClient_nickname(), command).c_str(), \
+					ERR_ALREADYREGISTERED(client.get_hostname(), client.getClient_nickname(), command).length(), 0) < 0)
+					std::cerr << "Error: send failed" << std::endl;
+				return;
+			}
 			message += rest_of_message;
 			std::stringstream for_split(message);
 			std::vector<std::string> user_info;
 			std::string temp;
 			if (client_info[fd].pass_received == false)
 			{
-				if (send(fd, ERR_NOTREGISTERED(client.getClient_nickname()).c_str(), ERR_NOTREGISTERED(client.getClient_nickname()).length(), 0) < 0)
+				std::string star("*");
+				if (client.getClient_nickname().empty())
+				{
+					if (send(fd, ERR_NOTREGISTERED(client.get_hostname(), star, command).c_str(), \
+						ERR_NOTREGISTERED(client.get_hostname(), star, command).length(), 0) < 0)
+						std::cerr << "Error: send failed" << std::endl;
+					return;
+				}
+				if (send(fd, ERR_NOTREGISTERED(client.get_hostname(), client.getClient_nickname(), command).c_str(), \
+				ERR_NOTREGISTERED(client.get_hostname(), client.getClient_nickname(), command).length(), 0) < 0)
 					std::cerr << "Error: send failed" << std::endl;
 				return;
 			}
@@ -217,7 +225,16 @@ void	Server::receive_data(int fd, std::string password)
 			}
 			if (user_info.size() < 4 || user_info[0][0] == ':')
 			{
-				if (send(fd, ERR_NEEDMOREPARAMS(client.getClient_nickname()).c_str(), ERR_NEEDMOREPARAMS(client.getClient_nickname()).length(), 0) < 0)
+				std::string star("*");
+				if (client.getClient_nickname().empty())
+				{
+					if (send(fd, ERR_NEEDMOREPARAMS(client.get_hostname(), star, command).c_str(), \
+						ERR_NEEDMOREPARAMS(client.get_hostname(), star, command).length(), 0) < 0)
+						std::cerr << "Error: send failed" << std::endl;
+					return;
+				}		
+				if (send(fd, ERR_NEEDMOREPARAMS(client.get_hostname(),client.getClient_nickname(), command).c_str(), \
+					ERR_NEEDMOREPARAMS(client.get_hostname(),client.getClient_nickname(), command).length(), 0) < 0)
 					std::cerr << "Error: send failed" << std::endl;
 				return;
 			}
@@ -225,35 +242,75 @@ void	Server::receive_data(int fd, std::string password)
 			client_info[fd].real_name = user_info[3];
 			client_info[fd].user_received = true;
 		}
-		if (command == "NICK")
+		else if (command == "NICK")
 		{
+			std::string star("*");
 			if (client_info[fd].pass_received == false)
 			{
-				if (send(fd, ERR_NOTREGISTERED(client.getClient_nickname()).c_str(), ERR_NOTREGISTERED(client.getClient_nickname()).length(), 0) < 0)
+				if (send(fd, ERR_NOTREGISTERED(client.get_hostname(), star, command).c_str(), \
+					ERR_NOTREGISTERED(client.get_hostname(), star, command).length(), 0) < 0)
 					std::cerr << "Error: send failed" << std::endl;
 				return;
 			}
 			if (message.empty())
 			{
-				if (send(fd, ERR_NONICKNAMEGIVEN(client.getClient_nickname()).c_str(), ERR_NONICKNAMEGIVEN(client.getClient_nickname()).length(), 0) < 0)
-					std::cerr << "Error: send failed" << std::endl;
-				return;
+				if (client_info[fd].getClient_nickname().empty())
+				{
+					if (send(fd, ERR_NONICKNAMEGIVEN(client.get_hostname(), star, command).c_str(), \
+						ERR_NONICKNAMEGIVEN(client.get_hostname(), star, command).length(), 0) < 0)
+						std::cerr << "Error: send failed" << std::endl;
+					return;
+				}
+				else
+				{
+					if (send(fd, ERR_NONICKNAMEGIVEN(client.get_hostname(), client.getClient_nickname(), command).c_str(), \
+						ERR_NONICKNAMEGIVEN(client.get_hostname(), client.getClient_nickname(), command).length(), 0) < 0)
+						std::cerr << "Error: send failed" << std::endl;
+					return;
+				}
 			}
 			if (message[0] == ':')
 			{
+				std::string star = "*";
 				message += rest_of_message;
+				trimString(message);
 		 		message_collon = message.substr(1, message.length() - 1);
-				trimString(message_collon);
-				std::cout << "nick: " << "{" <<message_collon << "}" << std::endl;
+				std::cout << "message_collon: {" << message_collon << "}" << std::endl;
+				std::cout << "message_collon size: {" << message_collon.size() << "}" << std::endl;
+				if (message_collon.empty())
+				{
+					std::cout << "hahahahhahaha: "<< std::endl;
+					if (client_info[fd].getClient_nickname().empty())
+					{
+						if (send(fd, ERR_NONICKNAMEGIVEN(client.get_hostname(), star, command).c_str(), \
+							ERR_NONICKNAMEGIVEN(client.get_hostname(), star, command).length(), 0) < 0)
+							std::cerr << "Error: send failed" << std::endl;
+						return;
+					}
+					if (send(fd, ERR_NONICKNAMEGIVEN(client.get_hostname(), client.getClient_nickname(), command).c_str(), \
+						ERR_NONICKNAMEGIVEN(client.get_hostname(), client.getClient_nickname(), command).length(), 0) < 0)
+						std::cerr << "Error: send failed" << std::endl;
+					return;
+				}
+				std::cout << "TESTTTTTTTTT: "<< std::endl;
 				if (message_collon.find_first_of("#:,*?!@%. '\t'") != std::string::npos || message_collon[0] == '$' || message_collon[0] == '&' \
 					|| isdigit(message_collon[0]))
 				{
-					if (send(fd, ERR_ERRONEUSNICKNAME(client.getClient_nickname()).c_str(), ERR_ERRONEUSNICKNAME(client.getClient_nickname()).length(), 0) < 0)
+					if (client_info[fd].getClient_nickname().empty())
+					{
+						if (send(fd, ERR_ERRONEUSNICKNAME(client.get_hostname(), star, command).c_str(), \
+							ERR_ERRONEUSNICKNAME(client.get_hostname(), star, command).length(), 0) < 0)
+							std::cerr << "Error: send failed" << std::endl;
+						return;
+					}
+					else if (send(fd, ERR_ERRONEUSNICKNAME(client.get_hostname(), client.getClient_nickname(), command).c_str(), \
+						ERR_ERRONEUSNICKNAME(client.get_hostname(), client.getClient_nickname(), command).length(), 0) < 0)
 						std::cerr << "Error: send failed" << std::endl;
 					return;
 				}
 				client_info[fd].setClient_nickname(message_collon);
 				client_info[fd].nick_received = true;
+				std::cout << "nick size is {" << client_info[fd].getClient_nickname().size() << "}" << std::endl;
 				std::cout << "nick is: " << client_info[fd].getClient_nickname() << std::endl;
 			}
 			else
@@ -261,7 +318,15 @@ void	Server::receive_data(int fd, std::string password)
 				if (message.find_first_of("#:,*?!@%. '\t'") != std::string::npos || message[0] == '$' || message[0] == '&' \
 					|| isdigit(message[0]))
 				{
-					if (send(fd, ERR_ERRONEUSNICKNAME(client.getClient_nickname()).c_str(), ERR_ERRONEUSNICKNAME(client.getClient_nickname()).length(), 0) < 0)
+					if (client_info[fd].getClient_nickname().empty())
+					{
+						if (send(fd, ERR_ERRONEUSNICKNAME(client.get_hostname(), star, command).c_str(), \
+							ERR_ERRONEUSNICKNAME(client.get_hostname(), star, command).length(), 0) < 0)
+							std::cerr << "Error: send failed" << std::endl;
+						return;
+					}
+					else if (send(fd, ERR_ERRONEUSNICKNAME(client.get_hostname(), client.getClient_nickname(), command).c_str(), \
+						ERR_ERRONEUSNICKNAME(client.get_hostname(), client.getClient_nickname(), command).length(), 0) < 0)
 						std::cerr << "Error: send failed" << std::endl;
 					return;
 				}
@@ -269,7 +334,15 @@ void	Server::receive_data(int fd, std::string password)
 				{
 					if (it->second.getClient_nickname() == message && it->first != fd)
 					{
-						if (send(fd, ERR_NICKNAMEINUSE(client.getClient_nickname()).c_str(), ERR_NICKNAMEINUSE(client.getClient_nickname()).length(), 0) < 0)
+						if (client_info[fd].getClient_nickname().empty())
+						{
+							if (send(fd, ERR_NICKNAMEINUSE(client.get_hostname(), star, command).c_str(), \
+								ERR_NICKNAMEINUSE(client.get_hostname(), star, command).length(), 0) < 0)
+								std::cerr << "Error: send failed" << std::endl;
+							return;
+						}
+						else if (send(fd, ERR_NICKNAMEINUSE(client.get_hostname(), client.getClient_nickname(), command).c_str(), \
+							ERR_NICKNAMEINUSE(client.get_hostname(), client.getClient_nickname(), command).length(), 0) < 0)
 							std::cerr << "Error: send failed" << std::endl;
 						return;
 					}
@@ -278,13 +351,10 @@ void	Server::receive_data(int fd, std::string password)
 				client_info[fd].nick_received = true;
 			}
 		}
-		if ((client_info[fd].pass_received == true) &&( client_info[fd].nick_received == true) && (client_info[fd].user_received == true))
-		{
-			client_info[fd].set_authenticated();
-			
-		}
+		check_isAuth(fd, client_info);
+		//do rest of the commands
+		
 	}
-	
 }
 
 void	Server::Server_connection(int port, std::string password)
@@ -317,16 +387,12 @@ void	Server::Server_connection(int port, std::string password)
 					int incoming_fd = accept(Socket_fd, (sockaddr *)&(client_addr), &client_len);
 					if (incoming_fd < 0)
 						throw (std::runtime_error("Error: accept failed"));
-					if (fcntl(incoming_fd, F_SETFL, O_NONBLOCK) < 0)
-						throw (std::runtime_error("Error: fcntl failed"));
 					new_client.fd = incoming_fd;
 					new_client.events = POLLIN;
 					new_client.revents = 0;
 
 					client.setClient_fd(incoming_fd);
 					client.setClient_ip(inet_ntoa(client_addr.sin_addr));
-					// std::cout << "client ip: " << client.getClient_ip() << std::endl;
-					// client_vec.push_back(client);
 					client_info.insert(std::pair<int, Client>(incoming_fd, client));
 					fdes.push_back(new_client);
 					std::cout << "Client <" <<  incoming_fd << "> connected" << std::endl;
@@ -338,3 +404,5 @@ void	Server::Server_connection(int port, std::string password)
 	}
 	close_allfds();
 }
+
+//POLLOUT

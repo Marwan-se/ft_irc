@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/08 13:16:09 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/11 05:08:15 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/11 23:27:38 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 #include <cstring>
 #include <cctype>
 #include <sys/socket.h>
+#include <unistd.h>
 
 
 class	Client
@@ -51,6 +52,7 @@ class	Client
 		std::string get_message();
 
 		void	set_authenticated();
+		bool	get_authenticated();
 
 		void	set_hostname(std::string host);
 		std::string	get_hostname();
@@ -71,6 +73,9 @@ class	Client
 
 };
 
-
+void	check_isAuth(int fd, std::map<int , Client> &client_info);
+void	pass_empty(int fd, std::map<int , Client> &client_info, Client &client, std::string command);
+void	bad_pass(int fd, std::map<int , Client> &client_info, Client &client, std::string command);
+void	nick_empty(int fd, Client &client, std::string command);
 
 #endif
