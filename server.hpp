@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/10 19:38:12 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/11 16:56:23 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,7 @@ class	Server
 		bool is_member(std::string nick, std::string ch_name);
 		bool is_op(std::string nick, std::string ch_name);
 		void remove_member(std::string nick, std::string ch_name);
+		void remove_from_ch(Client &client, std::map<std::string, Channel> &ch);
 
 };
 

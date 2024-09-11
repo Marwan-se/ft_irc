@@ -1,8 +1,8 @@
 NAME = ircserv
 CPP = c++
 FLAGS = -Wall -Wextra -Werror -std=c++98
-INC = server.hpp commands/ChannelFile.hpp commands/Message.hpp
-SRC = server.cpp main.cpp commands/ChannelFile.cpp commands/Commands.cpp    commands/Message.cpp
+INC = server.hpp commands/ChannelFile.hpp commands/Message.hpp commands/Tools.hpp
+SRC = server.cpp main.cpp commands/ChannelFile.cpp commands/Commands.cpp    commands/Message.cpp commands/Tools.cpp
 OBJ = $(SRC:.cpp=.o)
 
 all: $(NAME)

@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 17:54:50 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/11 14:07:11 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/11 17:15:59 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,68 +19,8 @@
 #include <sys/socket.h>
 #include <vector>
 #include "ChannelFile.hpp"
+#include "Tools.hpp"
 #include "../server.hpp"
-
-bool check_membre(std::vector<Client> vec, std::string name)
-{
-
-	for (size_t l = 0; l < vec.size(); l++) {
-		if (vec[l].getClient_nick() == name)
-			return true;
-	}
-	return false;
-}
-
-bool is_invite(std::vector<std::string> &vec, std::string name)
-{
-
-	for (size_t l = 0; l < vec.size(); l++)
-	{
-		if (vec[l] == name)
-		{
-			vec.erase(vec.begin() + l);
-			return true;
-		}
-	}
-	return false;
-}
-
-std::string join_members(std::vector<Client> members)
-{
-	std::string list;
-	std::string tmp;
-	for (size_t l = 0; l < members.size(); l++)
-	{
-		if (members[l].isOp && l == 0)
-			tmp = '@' + members[l].getClient_nick();
-		else if (members[l].isOp)
-			tmp = " @" + members[l].getClient_nick();
-		else
-			tmp = " " + members[l].getClient_nick();
-		list.append(tmp);
-		tmp.clear();
-	}
-	return list;
-}
-
-void remove_from_ch(Client &client, std::map<std::string, Channel> &ch)
-{
-	std::string rpl;
-
-	for (std::map<std::string, Channel>::iterator it = ch.begin(); it != ch.end(); it++) 
-	{
-		std::vector<Client> members = it->second.getMembers();
-		for (size_t l = 0; l < members.size(); l++) 
-		{
-			if (members[l].getClient_nick() == client.getClient_nick())
-			{
-				members.erase(members.begin() + l);
-				rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "PART" + " " + it->second.getName() + "\r\n";
-				send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-			}
-		}
-	}
-}
 
 void Server::join(Message &comm , Client &client)
 {
@@ -121,8 +61,8 @@ void Server::join(Message &comm , Client &client)
 				if (it == this->channels.end())
 				{
 					Channel t_ch(tmpn);
-					client.isOp = true;
 					t_ch.addMember(client);
+					t_ch.getMembers()[0].isOp = true;
 					this->channels.insert(std::pair<std::string, Channel>(tmpn,t_ch));
 					rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "JOIN" + " :" + tmpn + "\r\n";
 					send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
@@ -213,62 +153,6 @@ void Server::join(Message &comm , Client &client)
 
 }
 
-void Server::remove_member(std::string nick, std::string ch_name)
-{
-	std::string rpl;
-	std::map<std::string, Channel>::iterator it = this->channels.find(ch_name);
-	// std::vector<Client> members = it->second.getMembers();
-	for (size_t l = 0; l < it->second.getMembers().size(); l++) 
-	{
-		if (it->second.getMembers()[l].getClient_nick() == nick)
-			it->second.getMembers().erase(it->second.getMembers().begin() + l);
-	}
-}
-
-Client Server::client_exist(std::string name)
-{
-	for (std::map<int, Client>::iterator it = this->client_info.begin(); it != this->client_info.end(); it++) 
-	{
-		if (it->second.getClient_nick() == name)
-			return it->second;
-	}
-	return Client();
-}
-
-bool Server::is_member(std::string nick, std::string ch_name)
-{
-	std::map<std::string, Channel>::iterator it = this->channels.find(ch_name);
-	std::vector<Client> members = it->second.getMembers();
-	for (size_t l = 0; l < members.size(); l++) 
-	{
-		if (members[l].getClient_nick() == nick)
-			return true;
-	}
-	return false;
-}
-
-bool Server::is_op(std::string nick, std::string ch_name)
-{
-	std::map<std::string, Channel>::iterator it = this->channels.find(ch_name);
-	std::vector<Client> members = it->second.getMembers();
-	for (size_t l = 0; l < members.size(); l++) 
-	{
-		if (members[l].getClient_nick() == nick && members[l].isOp == true)
-			return true;
-	}
-	return false;
-
-}
-
-std::string comm_gen(std::string comm)
-{
-	std::string r(comm);
-	if (r[0] == ' ')
-		r.erase(0, 1);
-	if (r[0] != ':' && r.find(' ') != std::string::npos)
-		r.erase(r.find(' '));
-	return r;
-}
 
 void Server::kick(Message &comm , Client &client)
 {
@@ -338,18 +222,6 @@ void Server::kick(Message &comm , Client &client)
 	}
 }
 
-void msg_chann(Client client, std::string msg, std::map<std::string ,Channel>::iterator it)
-{
-	std::string rpl;
-	std::vector<Client> members = it->second.getMembers();
-
-	for (size_t l = 0; l < members.size(); l++)
-	{
-		rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "PRIVMSG" + " " + it->second.getName() + " :" + msg + "\r\n";
-		send(members[l].getClient_fd(), rpl.c_str(), rpl.size(), 0);
-	}
-}
-
 void Server::privmsg(Message &comm , Client &client)
 {
 	if (comm.getCommand() != "PRIVMSG")
@@ -362,7 +234,7 @@ void Server::privmsg(Message &comm , Client &client)
 	std::map<std::string ,Channel>::iterator it;
 	bool is_channel;
 
-	if (comm.getTarget().empty() || comm.getMsg().empty())
+	if (comm.getTarget().empty())
 	{
 		rpl = ERR_NEEDMOREPARAMS(client.gethostname(), client.getClient_nick(), "PRIVMSG");
 		send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
@@ -392,7 +264,7 @@ void Server::privmsg(Message &comm , Client &client)
 			send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 		}
 		else if (is_channel && !is_member(client.getClient_nick(), client_name[l]))
-		{
+		{                                                                                                                                                                                                                                     
 			rpl = ERR_CANNOTSENDTOCHAN(client.gethostname(), client.getClient_nick(), client_name[l]);
 			send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 		}
