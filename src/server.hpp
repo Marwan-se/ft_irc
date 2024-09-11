@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/08 21:17:43 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/11 04:16:01 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,5 +54,7 @@ class	Server
 
 };
 
+
+void trimString(std::string &str);
 
 #endif

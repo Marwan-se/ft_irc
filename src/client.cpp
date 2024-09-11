@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/08 13:17:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/09 18:07:18 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/11 05:08:12 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,17 @@ Client::Client()
 	pass_received = false;
 	nick_received = false;
 	user_received = false;
+	
+}
+
+void	Client::set_hostname(std::string host)
+{
+	hostname = host;
+}
+
+std::string	Client::get_hostname()
+{
+	return (hostname);
 }
 
 void 	Client::set_command(std::string cmd)
@@ -71,3 +82,4 @@ std::string	Client::get_message()
 {
 	return (message);
 }
+
