@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 14:17:11 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/09 16:18:15 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/11 13:31:18 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -241,6 +241,9 @@ void Server::parsingMsg(char *msg, Client &client)
 		else if (cmdUpper == "KICK"){
 			message.setCommand("KICK");
 		}
+		else if (cmdUpper == "PRIVMSG"){
+			message.setCommand("PRIVMSG");
+		}
 		// else if (sample == "NICK")
 		//     message->setCommand("NICK");
 		else{
@@ -260,6 +263,7 @@ void Server::parsingMsg(char *msg, Client &client)
 	message.setComm(sample);
 	join(message, client);
 	kick(message, client);
+	privmsg(message, client);
 	// handlingNICK(message, clients);
 	// handlingINV(message, channels);
 	// handlingTOPIC(message, channels);

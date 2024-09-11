@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 10:41:37 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/08 19:25:52 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/11 11:10:50 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,11 +92,11 @@ void Channel::removeMember(Client &member)
     (void)member;
     for (std::vector<Client>::iterator it = this->members.begin(); it != this->members.end(); it++)
     {
-        // if (it->getClient_nick() == member.getClient_nick())
-        // {
-        //     this->members.erase(it);
-        //     return;
-        // }
+        if (it->getClient_nick() == member.getClient_nick())
+        {
+            this->members.erase(it);
+            return;
+        }
     }
 }
 

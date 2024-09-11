@@ -6,12 +6,13 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/09 13:56:40 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/11 13:01:54 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.hpp"
 #include <cstddef>
+#include <cstdlib>
 #include <iostream>
 #include <iterator>
 #include <string>
@@ -161,8 +162,11 @@ void	Server::receive_data(int fd)
 	}
 	else
 	{
+		char *s = (char *)malloc(2);
+		s[0] = fd + 32;
+		s[1] = '\0';
 		buffer[data] = '\0';
-		client_info[fd].setClient_nick("yah");
+		client_info[fd].setClient_nick(std::string (s));
 		client_info[fd].sethostname("locall");
 		client_info[fd].setClient_fd(fd);
 		Server::parsingMsg(buffer, client_info[fd]);
