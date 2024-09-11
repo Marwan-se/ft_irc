@@ -6,14 +6,14 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 14:17:11 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/08 19:29:56 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/11 18:34:42 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Message.hpp"
-
+#include <cstddef>
+#include <cstdlib>
 #include <cctype>
-#include <deque>
 #include <iterator>
 #include <string>
 #include <sstream>
@@ -38,6 +38,10 @@ Message::~Message()
 std::string Message::getCommand()
 {
 	return this->command;
+}
+std::string Message::getComm()
+{
+	return this->comm;
 }
 
 std::string Message::getTarget()
@@ -64,17 +68,9 @@ void Message::setCommand(std::string command)
 {
 	this->command = command;
 }
-
-Client& Server::getClientByNick(std::string nick)
+void Message::setComm(std::string comm)
 {
-	std::map<int, Client>::iterator it = client_info.begin();
-	while( it != client_info.end())
-	{
-		if (nick == it->second.getClient_nick())
-			return it->second;
-		it++;
-	}
-	return it->second;
+	this->comm = comm;
 }
 
 bool client_exist(std::string nickname, std::vector<Client> &clients)
@@ -112,6 +108,7 @@ void Server::handlingINV(Message message, std::map<std::string, Channel> &channe
 		{
 			std::string m = ERR_NOSUCHCHANNEL(client.getClient_nick(), message.getMsg());
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
+			std::cout << client.getClient_fd() << std::endl;
 			return ;
 		}
 		if (!client_exist(message.getTarget(), client_vec))
@@ -126,9 +123,9 @@ void Server::handlingINV(Message message, std::map<std::string, Channel> &channe
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
 			return ;
 		}
-		else
+		else if (client.getisOp())
 		{
-			Client invited = getClientByNick(message.getTarget());
+			Client invited = channels[message.getMsg()].getClientMember(message.getTarget());
 			std::vector<std::string> tmp = channels[message.getMsg()].getInvited();
 			if (std::find(tmp.begin(), tmp.end(), invited.getClient_nick()) == tmp.end())
 				channels[message.getMsg()].getInvited().push_back(invited.getClient_nick());
@@ -140,23 +137,29 @@ void Server::handlingINV(Message message, std::map<std::string, Channel> &channe
 			m = RPL_INVITE(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), message.getMsg());
 			send(invited.getClient_fd(), m.c_str(), m.length(), 0);
 		}
+		else {
+			std::string m = ERR_CHANOPRIVSNEEDED(client.getClient_nick(), message.getMsg());
+			send(client.getClient_fd(), m.c_str(), m.length(),0);
+		}
 	}
 }
 
 
-void handlingTOPIC(Message message, std::map<std::string, Channel> channels, Client &client)
+void handlingTOPIC(Message message, std::map<std::string, Channel> &channels, Client &client)
 {
 	if (message.getCommand() == "TOPIC")
 	{
-		if (message.getTarget().empty())
+		 if (message.getTarget() == ":" || message.getTarget().empty())
 		{
 				std::string m = ERR_NEEDMOREPARAMS(client.getClient_nick(), "TOPIC");
 				send(client.getClient_fd(), m.c_str(), m.length(),0);
+				return ;
 
 		}
 		if (message.getTarget().at(0) != '#' || channels.find(message.getTarget()) == channels.end())
 		{
-		   std::cout << "Error: channel not found" << std::endl;
+				std::string m = ERR_NOSUCHCHANNEL(client.getClient_nick(), message.getTarget());
+				send(client.getClient_fd(), m.c_str(), m.length(),0);
 		   return ;
         }
         if (isMember(channels[message.getTarget()], client.getClient_nick()))
@@ -174,22 +177,24 @@ void handlingTOPIC(Message message, std::map<std::string, Channel> channels, Cli
 					std::string m = RPL_NOTOPIC(client.getClient_nick(), channels[message.getTarget()].getName());
 					send(client.getClient_fd(), m.c_str(), m.length(),0);
 				}
-				else if (client.isOp)
+				else if (client.getisOp())
 				{
-					// std::time_t topicTime = std::time(NULL);
+					std::time_t topicTime = std::time(NULL);
 					channels[message.getTarget()].setTopic(message.getMsg());
 					std::string m = RPL_TOPIC(client.getClient_nick(), channels[message.getTarget()].getName(), channels[message.getTarget()].getTopic());
 					send(client.getClient_fd(), m.c_str(), m.length(),0);
 					//brodcast to all clients of the channel that topic is changed.
+					// RPL_TOPICWHOTIME(client, channel, nickname, time) brodcast this hh
 				}
-				else{
+				else
+				{
 					//not an operator
 					std::string m = ERR_CHANOPRIVSNEEDED(client.getClient_nick(), channels[message.getTarget()].getName());
 					send(client.getClient_fd(), m.c_str(), m.length(),0);
 				}
 			}
 		}
-		else {
+		else{
 			// error not a member of the channel 
 			std::string m = ERR_NOTONCHANNEL(client.getClient_nick(), channels[message.getTarget()].getName());
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
@@ -198,75 +203,139 @@ void handlingTOPIC(Message message, std::map<std::string, Channel> channels, Cli
 }
 
 
-// bool parseModes(std::string args)
-// {
-// 	if ((args[0] != '+' || args[0] != '-') && (args[1] == '+' || args[1] == '-')){
-// 		std::cout << "Error: invalid mode params!!!!!!!!!!!!" << std::endl;
-// 		return 1;
-// 	}
-// 	if (args[args.length() - 1] == '+' || args[args.length() - 1] == '-'){
-// 		std::cout << "Error: invalid mode params" << std::endl;
-// 		return 1;
-// 	}
+// command(mode) target(#chan) msg(+-mode) comm(client)
 
-// 	std::deque<char> base = {'i', 't', 'k', 'o', 'l'};
-// 	std::deque<char> check;
-// 	std::deque<char> sign;
-// 	sign.push_back(args[0]);
-// 	bool none = false;
-// 	for (int j = 1; j < args.length(); j++)
-// 	{
-// 		if (args[j] != '+' && args[j] != '-')
-// 		{
-// 			for (std::deque<char>::iterator it = base.begin() ; it != base.end(); it++)
-// 			{
-// 				if (*it == args[j]){
-// 					check.push_back(args[j]);
-// 					break ;
-// 				}
-// 			}
-// 			if (check.back() != args[j] ){
-// 			    std::cout << "Error: mode args!" << std::endl;
-// 			    return 0;
-// 			}
-// 				if (check.back() == args[j+1]){
-// 					std::cout << "Error: mode args!" << std::endl;
-// 					return 0;
-// 				}
-// 		}
-// 		else if (args[j] == '+' || args[j] == '-'){
-// 			sign.push_back(args[j]);
-// 		}
-// 	}
-// 	// for (std::deque<char>::iterator ii = check.begin(); ii != check.end(); ii++)
-// 	// {
-// 	//     std::cout << *ii << "-";
-// 	// }
-// 	// std::cout << std::endl;
-// 	// for (std::deque<char>::iterator s = sign.begin(); s != sign.end(); s++)
-// 	// {
-// 	//     std::cout << *s << " | ";
-// 	// }
-// 	// std::cout << std::endl;
-// 	return 1;
-// }
+void    Server::handlingMODE(Message message, std::map<std::string, Channel> &channels, Client &client)
+{
 
-// void    handlingMODE(Message *message, std::vector<Channel> *channels, std::vector<Client> *clients)
-// {
-// 	if (message->getCommand() == "MODE")
-// 	{
-// 		if (!message->getTarget().empty()  && message->getTarget()[0] == '#')
-// 		{
-// 			if (!parseModes(message->getMsg())){
-// 				return ;
-// 			}
-// 		}
-// 		else if (!message->getTarget().empty())
-// 		{
-			
-// 		}
-// 	}
-// }
+ (void)channels;
+	if (message.getCommand() == "MODE")
+	{
+		if (message.getTarget().empty() || message.getMsg().empty() || message.getComm().empty())
+		{
+			std::string m = ERR_NEEDMOREPARAMS(client.getClient_nick(), message.getCommand());
+			send(client.getClient_fd(), m.c_str(), m.length(),0);
+			return ;
+		}
+		if (channels.find(message.getTarget()) == channels.end())
+		{
+			std::string m = ERR_NOSUCHCHANNEL(client.getClient_nick(), message.getTarget());
+			send(client.getClient_fd(), m.c_str(), m.length(),0);
+			return ;
+		}
+		else if (!client.getisOp())
+		{
+			std::string m = ERR_CHANOPRIVSNEEDED(client.getClient_nick(), message.getTarget());
+			send(client.getClient_fd(), m.c_str(), m.length(),0);
+		}
+		else {
+			if (message.getMsg().length() <= 2 && (message.getMsg().at(0) == '+' || message.getMsg().at(0) == '-'))
+			{
+				if (message.getMsg() == "+t")
+				{
+					channels[message.getTarget()].setTopicRES(true);
+					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+t", "");
+					send(client.getClient_fd(), m.c_str(), m.length(),0);
+				}
+				else if (message.getMsg() == "-t")
+				{
+					channels[message.getTarget()].setTopicRES(false);
+					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "-t", "");
+					send(client.getClient_fd(), m.c_str(), m.length(),0);
+					return ;
+				}
+				else if (message.getMsg() == "+i")
+				{
+					channels[message.getTarget()].setInviteOnly(true);
+					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+i", "");
+					send(client.getClient_fd(), m.c_str(), m.length(),0);
+					return ;
+				}
+				else if (message.getMsg() == "-i")
+				{
+					channels[message.getTarget()].setInviteOnly(false);
+					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "-i", "");
+					send(client.getClient_fd(), m.c_str(), m.length(),0);
+					return ;
+				}
+				else if (message.getMsg() == "+k"){
+					channels[message.getTarget()].setPass(true);
+					channels[message.getTarget()].setKey(message.getComm());
+					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+k", message.getComm());
+					send(client.getClient_fd(), m.c_str(), m.length(),0);
+					return ;
+				}
+				else if (message.getMsg() == "-k"){
+					channels[message.getTarget()].setPass(false);
+					channels[message.getTarget()].setKey("");
+					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "-k", "");
+					send(client.getClient_fd(), m.c_str(), m.length(),0);
+					return ;
+				}
+				else if (message.getMsg() == "+l"){
+					channels[message.getTarget()].setLimit(true);
+					std::stringstream tst(message.getComm());
+					size_t num;
+					tst >> num;
+					channels[message.getTarget()].setLimNum(num);
+					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+l", message.getComm());
+					send(client.getClient_fd(), m.c_str(), m.length(),0);
+					return ;
+				}
+				else if (message.getMsg() == "-l"){
+					channels[message.getTarget()].setLimit(false);
+					channels[message.getTarget()].setLimNum(0);
+					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "-l", message.getComm());
+					send(client.getClient_fd(), m.c_str(), m.length(),0);
+					return ;
+				}
+				else if (message.getMsg() == "+o")
+				{
+					if (!isMember(message.getTarget(), message.getComm()))
+					{
+						std::string m = ERR_NOSUCHNICK(client.getClient_nick(), message.getComm());
+						send(client.getClient_fd(), m.c_str(), m.length(),0);
+						return ;
+					}
+					else
+					{
+						Client targt = channels[message.getTarget()].getClientMember(message.getComm());
+						if (targt.getisOp())
+							return ;
+						targt.setisOp(true);
+						std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+o", "");
+						send(client.getClient_fd(), m.c_str(), m.length(),0);
+					}
+				}
+				else if (message.getMsg() == "-o")
+				{
+					if (!isMember(message.getTarget(), message.getComm()))
+					{
+						std::string m = ERR_NOSUCHNICK(client.getClient_nick(), message.getComm());
+						send(client.getClient_fd(), m.c_str(), m.length(),0);
+						return ;
+					}
+					else
+					{
+						Client targt = channels[message.getTarget()].getClientMember(message.getComm());
+						if (!targt.getisOp())
+							return ;
+						targt.setisOp(false);
+						std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "-o", "");
+						send(client.getClient_fd(), m.c_str(), m.length(),0);
+						return ;
+					}
+				}
+			}
+			else {
+				std::string m = ERR_UNKNOWNMODE(client.getClient_nick(), message.getMsg());
+				send(client.getClient_fd(), m.c_str(), m.length(),0);
+			}
+		}
+
+	}
+}
+
 std::string toUpper(std::string str)
 {
 	for (int i = 0; (unsigned long)i < str.length(); ++i)
@@ -287,6 +356,7 @@ void Server::parsingMsg(char *msg, Client &client)
 	}
 	std::string sample;
 	ss >> sample;
+	
 	std::string cmdUpper = toUpper(sample);
 		if (cmdUpper == "INVITE"){
 			message.setCommand("INVITE");
@@ -297,13 +367,10 @@ void Server::parsingMsg(char *msg, Client &client)
 		else if (cmdUpper == "MODE"){
 			message.setCommand("MODE");
 		}
-
 		else{
 			return ;
 		}
-	if (ss.eof()){
-		throw std::runtime_error("Error: no target");
-	}
+	
 	sample.clear();
 	ss >> sample;
 	message.setTarget(sample);
@@ -311,10 +378,12 @@ void Server::parsingMsg(char *msg, Client &client)
 	ss >> sample;
 	message.setMsg(sample);
 	sample.clear();
+	ss >> sample;
+	message.setComm(sample);
 
 	
 	handlingINV(message, channels, client);
 	handlingTOPIC(message, channels, client);
-	// handlingMODE(message, channels, clients);
+	handlingMODE(message, channels, client);
 
 }

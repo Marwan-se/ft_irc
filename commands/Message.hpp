@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 14:17:28 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/08 15:47:14 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/11 18:31:54 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 # define MESSAGE_HPP
 
 #include <string>
-#include "ChannelFile.hpp"
-#include <map>
 
+
+class Channel;
 
 class Message
 {
@@ -24,18 +24,19 @@ class Message
         std::string command;
         std::string target;
         std::string msg;
+        std::string comm;
     public:
         Message();
         ~Message();
         std::string getCommand();
         std::string getTarget();
         std::string getMsg();
+        std::string getComm();
         void setMsg(std::string msg);
         void setTarget(std::string target);
         void setCommand(std::string command);
+        void setComm(std::string comm);
 };
-
-void parsingMsg(char *msg, std::map<std::string, Channel> &channels, Client &client);
 
 
 

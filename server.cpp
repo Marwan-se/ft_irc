@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/08 19:16:07 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/11 18:22:35 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,15 @@ std::string		Client::getClient_user()
 	return this->user;
 }
 
+bool Client::getisOp()
+{
+	return this->isOp;
+}
+void Client::setisOp(bool x)
+{
+	this->isOp = x;
+}
+
 
 void	Client::setClient_fd(int fd)
 {
@@ -153,7 +162,7 @@ void	Server::receive_data(int fd)
 		buffer[data] = '\0';
 		
 
-		Server::parsingMsg(buffer, client_info[fd]);
+		Server::parsingMsg(buffer, client_vec[0]);
 		// std::cout << "Client <" << fd << "> sent: " << buffer;
 		// authenticate client
 		// Auth auth;
