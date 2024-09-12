@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/12 00:25:22 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/12 23:24:45 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,8 @@ class	Server
 		std::vector<struct pollfd > fdes;
 		std::map<int , Client> client_info;
 	public:
-	
+
+		std::map<int , std::string > ctrl_d;
 		void	init_Socket(int domain, int type, int protocol, int port);
 		void	Server_connection(int port, std::string password);
 

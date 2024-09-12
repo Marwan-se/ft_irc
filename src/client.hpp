@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/08 13:16:09 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/11 23:27:38 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/12 23:46:17 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,9 +73,12 @@ class	Client
 
 };
 
-void	check_isAuth(int fd, std::map<int , Client> &client_info);
 void	pass_empty(int fd, std::map<int , Client> &client_info, Client &client, std::string command);
 void	bad_pass(int fd, std::map<int , Client> &client_info, Client &client, std::string command);
 void	nick_empty(int fd, Client &client, std::string command);
+void	handle_pass_command(int fd, std::string password, std::string message, std::string rest_of_message, std::map<int , Client> &client_info, Client &client, std::string command);
+void	handle_user_command(int fd, std::string message, std::string rest_of_message, std::map<int , Client> &client_info, Client &client, std::string command);
+void	handle_nick_command(int fd, std::string message, std::string rest_of_message, std::map<int , Client> &client_info, Client &client, std::string command);
+void	handle_auth(int fd, std::string password, std::string ctrl_d, std::map<int , Client> &client_info, Client &client);
 
 #endif
