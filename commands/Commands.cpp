@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 17:54:50 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/11 19:40:21 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/12 13:15:36 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,8 +106,7 @@ void Server::join(Message &comm , Client &client)
 							// rpl = RPL_TOPICWHOTIME(client.gethostname(), client.getClient_nick(), tmpn, )
 							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 						}
-						rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "JOIN" + " :" + tmpn + "\r\n";
-						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+						msg_chann(client, "", ":" + tmpn, "JOIN");
 						rpl = RPL_NAMREPLY(client.gethostname(), client.getClient_nick(), tmpn, join_members(channels[tmpn].getMembers()));
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 						rpl = RPL_ENDOFNAMES(client.gethostname(), client.getClient_nick(), tmpn);
@@ -134,8 +133,7 @@ void Server::join(Message &comm , Client &client)
 							// rpl = RPL_TOPICWHOTIME(client.gethostname(), client.getClient_nick(), tmpn, )
 							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 						}
-						rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "JOIN" + " :" + tmpn + "\r\n";
-						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+						msg_chann(client, "", ":" + tmpn, "JOIN");
 						rpl = RPL_NAMREPLY(client.gethostname(), client.getClient_nick(), tmpn, join_members(channels[tmpn].getMembers()));
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 						rpl = RPL_ENDOFNAMES(client.gethostname(), client.getClient_nick(), tmpn);
@@ -273,7 +271,7 @@ void Server::privmsg(Message &comm , Client &client)
 			send(client_exist(client_name[l]).getClient_fd(), rpl.c_str(), rpl.size(), 0);
 		}
 		else 
-			msg_chann(client,msg[0], it->second.getName(), " :" + msg[0]);
+			msg_chann(client," :" + msg[0], it->second.getName(), "PRIVMSG");
 	}
 	
 }

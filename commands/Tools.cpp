@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 16:49:06 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/11 20:18:27 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/12 13:14:18 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,7 @@ void Server::msg_chann(Client client, std::string msg, std::string ch_name, std:
 
 	for (size_t l = 0; l < members.size(); l++)
 	{
-		rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + command + " " + ch_name + " :" + msg + "\r\n";
+		rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + command + " " + ch_name + msg + "\r\n";
 		send(members[l].getClient_fd(), rpl.c_str(), rpl.size(), 0);
 	}
 }
