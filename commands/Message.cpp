@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 14:17:11 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/11 21:02:47 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/12 17:45:24 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ void Server::handlingTOPIC(Message message, std::map<std::string, Channel> &chan
 				}
 				else if (client.getisOp())
 				{
-					std::time_t topicTime = std::time(NULL);
+					// std::time_t topicTime = std::time(NULL);
 					channels[message.getTarget()].setTopic(message.getMsg());
 					std::string m = RPL_TOPIC(client.gethostname(), client.getClient_nick(), channels[message.getTarget()].getName(), channels[message.getTarget()].getTopic());
 					send(client.getClient_fd(), m.c_str(), m.length(),0);
@@ -328,6 +328,7 @@ void Server::parsingMsg(char *msg, Client &client)
 	Message message;
 	std::string str = std::string(msg);
 	std::stringstream ss(str);
+	std::stringstream s1(str);
 	if (ss.eof()){
 		throw std::runtime_error("Error: empty message");
 	}
@@ -359,7 +360,9 @@ void Server::parsingMsg(char *msg, Client &client)
 		return;
 	}
 	sample.clear();
-	std::getline(ss, str);
+	s1 >> str;
+	str.clear();
+	std::getline(s1, str);
 	ss >> sample;
 	if (sample.find(':') != std::string::npos)
 	{

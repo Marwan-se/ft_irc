@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/11 13:01:54 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/12 17:28:07 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,6 +121,18 @@ void	Client::setClient_ip(std::string ip)
 {
 	Client_ip = ip;
 }
+
+bool	Client::getisOp()
+{
+	return this->isOp;
+}
+
+void	Client::setisOp(bool x)
+{
+	this->isOp = x;
+}
+
+
 
 void	Server::init_Socket(int domain, int type, int protocol, int port)
 {
