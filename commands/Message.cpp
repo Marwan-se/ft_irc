@@ -6,11 +6,12 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 14:17:11 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/12 17:45:24 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/12 18:12:08 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Message.hpp"
+#include <cstddef>
 #include <iterator>
 #include <map>
 #include <ostream>
@@ -380,7 +381,8 @@ void Server::parsingMsg(char *msg, Client &client)
 	ss >> sample;
 	if (sample.find(':') != std::string::npos)
 	{
-		message.setMsg(comm_gen(str));
+		size_t l = str.find(':');
+		message.setMsg(comm_gen(std::string (str , l)));
 		join(message, client);
 		kick(message, client);
 		privmsg(message, client);

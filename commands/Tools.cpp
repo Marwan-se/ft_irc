@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 16:49:06 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/12 13:14:18 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/12 19:46:31 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,14 +139,15 @@ void Server::remove_from_ch(Client &client, std::map<std::string, Channel> &ch)
 	}
 }
 
-void Server::msg_chann(Client client, std::string msg, std::string ch_name, std::string command)
+void Server::msg_chann(Client client, std::string msg, std::string ch_name,std::string target, std::string command)
 {
 	std::string rpl;
 	std::vector<Client> members = channels[ch_name].getMembers();
 
 	for (size_t l = 0; l < members.size(); l++)
 	{
-		rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + command + " " + ch_name + msg + "\r\n";
-		send(members[l].getClient_fd(), rpl.c_str(), rpl.size(), 0);
+		rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + command + " " + target + msg + "\r\n";
+		if (client.getClient_nick() != members[l].getClient_nick())
+			send(members[l].getClient_fd(), rpl.c_str(), rpl.size(), 0);
 	}
 }
