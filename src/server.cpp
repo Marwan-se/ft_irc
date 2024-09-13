@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/13 00:19:05 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/13 08:08:22 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,9 +134,7 @@ void	Server::receive_data(int fd, std::string password)
 			ctrl_d[fd].clear();
 		}
 		else
-		{
 			ctrl_d[fd] += line.str();
-		}
 	}
 }
 

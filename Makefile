@@ -1,8 +1,8 @@
 NAME = ircserv
 CPP = c++
 FLAGS = -Wall -Wextra -Werror -std=c++98
-INC = src/server.hpp src/client.hpp
-SRC = src/server.cpp main.cpp src/client.cpp src/auth.cpp
+INC = src/server.hpp src/client.hpp 
+SRC = src/server.cpp main.cpp src/client.cpp src/auth.cpp src/pass.cpp src/user.cpp src/nick.cpp
 OBJ = $(SRC:.cpp=.o)
 
 all: $(NAME)
