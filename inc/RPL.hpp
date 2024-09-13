@@ -3,12 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   RPL.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/08 21:56:27 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/11 19:59:26 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/13 11:13:15 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+
 
 //------REPLIES---------//
 
@@ -30,7 +32,14 @@
 
 //------ERRORS---------//
 
+//********GENERAL*********//
+# define ERR_ALREADYREGISTERED(hostname, nickname, command) (":" + hostname + " 462 " + nickname + " " + command + " :You may not reregister !" + "\r\n")
 # define ERR_NEEDMOREPARAMS(hostname,client,command) (":" + hostname + " 461 " + client + " " + command + " :Not enough parameters\r\n")
+# define ERR_PASSWDMISMATCH(hostname, nickname, command) (":" + hostname + " 464 " + nickname + " " + command + " :Password incorrect" + "\r\n")
+# define ERR_NONICKNAMEGIVEN(hostname, nickname, command) (":" + hostname + " 431 " + nickname + " " + command + " :No nickname given" + "\r\n")
+# define ERR_ERRONEUSNICKNAME(hostname, nickname, command) (":" + hostname + " 432 " + nickname + " " + command +" :Erroneus nickname" + "\r\n")
+# define ERR_NICKNAMEINUSE(hostname, nickname, command) (":" + hostname + " 433 " + nickname + " " + command + " :Nickname is already in use" + "\r\n")
+# define ERR_NOTREGISTERED(hostname, nickname, command) (":" + hostname + " 451 " + nickname + " " + command + " :You have not registered" + "\r\n")
 # define ERR_UNKNOWNCOMMAND(hostname,client,command) (":" + hostname + " 421 " + client + " " + command + " :Unknown command\r\n")
 
 //********JOIN*********//

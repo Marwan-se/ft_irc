@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/12 17:28:07 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/13 12:04:19 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "server.hpp"
+#include "../inc/server.hpp"
 #include <cstddef>
 #include <cstdlib>
 #include <iostream>
@@ -22,41 +22,12 @@
 #include <cstring>
 #include <map>
 
-
 bool	Server::signal_received_flag = false;
 
-void	Client::sethostname(std::string n)
-{
-	this->hostname = n;
-}
-
-void	Client::setClient_nick(std::string n)
-{
-	this->nick = n;
-}
-
-std::string		Client::getClient_nick()
-{
-	return this->nick;
-}
-
-std::string		Client::getClient_ip()
-{
-	return this->Client_ip;
-}
-
-std::string		Client::getClient_user()
-{
-	return this->user;
-}
-
-std::string		Client::gethostname()
-{
-
-	return this->hostname;
-}
-
-
+Server::Server()
+{}
+Server::~Server()
+{}
 
 void Server::SignalHandler(int signum)
 {
@@ -65,30 +36,10 @@ void Server::SignalHandler(int signum)
 	Server::signal_received_flag = true;
 }
 
-void	Server::delete_client_data_inpoll(int fd)
-{
-	for (size_t i = 0; i < fdes.size(); i++)
-	{
-		if (fdes[i].fd == fd)
-		{
-			fdes.erase(fdes.begin() + i);
-			break;
-		}
-	}
-	// for(size_t i = 0; i < client_vec.size(); i++)
-	// {
-	// 	if (client_vec[i].getClient_fd() == fdes[i].fd)
-	// 	{
-	// 		client_vec.erase(client_vec.begin() + i);
-	// 		break;
-	// 	}
-	// }
-}
-
 void	Server::close_allfds()
 {
-	// for (size_t i = 0; i < client_vec.size(); i++)
-	// 	close(client_vec[i].getClient_fd());
+	for (size_t i = 0; i < client_info.size(); i++)
+		close(client_info[i].getClient_fd());
 	if (Socket_fd != -1)
 	{
 		std::cout << "Server <" << Socket_fd << "> disconnected" << std::endl;
@@ -107,32 +58,6 @@ int	Server::getSocket_fd()
 	return (Socket_fd);
 }
 
-int	Client::getClient_fd()
-{
-	return (Client_fd);
-}
-
-void	Client::setClient_fd(int fd)
-{
-	Client_fd = fd;
-}
-
-void	Client::setClient_ip(std::string ip)
-{
-	Client_ip = ip;
-}
-
-bool	Client::getisOp()
-{
-	return this->isOp;
-}
-
-void	Client::setisOp(bool x)
-{
-	this->isOp = x;
-}
-
-
 
 void	Server::init_Socket(int domain, int type, int protocol, int port)
 {
@@ -140,6 +65,7 @@ void	Server::init_Socket(int domain, int type, int protocol, int port)
 	Server_addr.sin_port = htons(port);
 	Server_addr.sin_addr.s_addr = INADDR_ANY;
 	Socket_fd = socket(domain, type, protocol);
+
 	if (Socket_fd < 0)
 		throw (std::runtime_error("Error: socket failed"));
 	int opt = 1;
@@ -153,51 +79,64 @@ void	Server::init_Socket(int domain, int type, int protocol, int port)
 		throw (std::runtime_error("Error: listen failed"));
 }
 
-void	Server::receive_data(int fd)
+void trimString(std::string &str)
 {
-	char buffer[1024];
+    size_t endpos = str.find_last_not_of(" \t\r\n");
+    if (std::string::npos != endpos)
+	{
+        str = str.substr(0, endpos + 1);
+    }
+}
+
+
+void	Server::receive_data(int fd, std::string password)
+{
+	Client client = client_info[fd];
+	char buffer[512];
 	memset(buffer, 0, sizeof(buffer));
 	ssize_t	data = recv(fd, buffer, sizeof(buffer) -1, 0);
 	if (data <= 0)
 	{
 		std::cout << "Client <" << fd << "> disconnected" << std::endl;
-		delete_client_data_inpoll(fd);
-		// for(size_t i = 0; i < client_vec.size(); i++)
-		// {
-		// 	if (client_vec[i].getClient_fd() == fdes[i].fd)
-		// 	{
-		// 		client_vec.erase(client_vec.begin() + i);
-		// 		break;
-		// 	}
-		// }
-		// close(fd);
+
+		for (size_t i = 0; i < fdes.size(); i++)
+		{
+			if (fdes[i].fd == fd)
+			{
+				fdes.erase(fdes.begin() + i);
+				break;
+			}
+		}
+		remove_from_ch(client_info[fd], this->channels, 1);
+		// client_info.erase(fd);
+		ctrl_d.erase(fd);
+		close(fd);
 	}
 	else
 	{
-		char *s = (char *)malloc(2);
-		s[0] = fd + 32;
-		s[1] = '\0';
-		buffer[data] = '\0';
-		client_info[fd].setClient_nick(std::string (s));
-		client_info[fd].sethostname("locall");
-		client_info[fd].setClient_fd(fd);
-		Server::parsingMsg(buffer, client_info[fd]);
+		std::stringstream line(buffer);
+		if (line.str().find("\r\n") != std::string::npos)
+		{
+			ctrl_d[fd] += line.str();
+			handle_auth(fd, password, ctrl_d[fd], client_info, client);
+			if (client_info[fd].get_authenticated() == true)
+				parsingMsg(ctrl_d[fd], client);
+			ctrl_d[fd].clear();
+		}
+		else
+			ctrl_d[fd] += line.str();
 	}
-	
 }
 
 void	Server::Server_connection(int port, std::string password)
 {
 	init_Socket(AF_INET, SOCK_STREAM, 0, port);
-
-	(void)password;
 	
 	struct pollfd new_poll;
 	new_poll.fd = Socket_fd;
 	new_poll.events = POLLIN;
 	new_poll.revents = 0;
 	fdes.push_back(new_poll);
-
 
 	int timeout = -1;
 	std::cout << "Server <" << Socket_fd << "> connected" << std::endl;
@@ -213,28 +152,26 @@ void	Server::Server_connection(int port, std::string password)
 				if (fdes[i].fd == Socket_fd)
 				{
 					Client client;
-					std::vector<Client>	client_vec;
 					struct sockaddr_in client_addr;
 					struct pollfd new_client;
 					socklen_t client_len = sizeof(client_addr);
-
 					int incoming_fd = accept(Socket_fd, (sockaddr *)&(client_addr), &client_len);
 					if (incoming_fd < 0)
 						throw (std::runtime_error("Error: accept failed"));
-					if (fcntl(incoming_fd, F_SETFL, O_NONBLOCK) < 0)
-						throw (std::runtime_error("Error: fcntl failed"));
 					new_client.fd = incoming_fd;
 					new_client.events = POLLIN;
 					new_client.revents = 0;
 
 					client.setClient_fd(incoming_fd);
 					client.setClient_ip(inet_ntoa(client_addr.sin_addr));
-					client_vec.push_back(client);
+					client_info.insert(std::pair<int, Client>(incoming_fd, client));
 					fdes.push_back(new_client);
+					ctrl_d.insert(std::pair<int, std::string>(incoming_fd, ""));
 					std::cout << "Client <" <<  incoming_fd << "> connected" << std::endl;
+					client_info[incoming_fd].set_hostname();
 				}
 				else
-					receive_data(fdes[i].fd);
+					receive_data(fdes[i].fd, password);
 			}
 		}
 	}

@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Tools.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 16:49:06 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/12 19:46:31 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/13 11:59:49 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Tools.hpp"
+#include "../inc/Tools.hpp"
 
 void Server::remove_member(std::string nick, std::string ch_name)
 {
@@ -116,7 +116,7 @@ std::string join_members(std::vector<Client> members)
 	return list;
 }
 
-void Server::remove_from_ch(Client &client, std::map<std::string, Channel> &ch)
+void Server::remove_from_ch(Client &client, std::map<std::string, Channel> &ch, bool flag)
 {
 	std::string rpl;
 
@@ -129,9 +129,13 @@ void Server::remove_from_ch(Client &client, std::map<std::string, Channel> &ch)
 			{
 				if (is_op(members[l].getClient_nick(), it->second.getName()))
                     it->second.getMembers()[l].setisOp(false);
+				std::cout << it->second.getMembers()[l].getClient_nick() << std::endl;
 				it->second.getMembers().erase(members.begin() + l);
-				rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "PART" + " " + it->second.getName() + "\r\n";
-				send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+				if (flag == 0)
+				{
+					rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "PART" + " " + it->second.getName() + "\r\n";
+					send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+				}
 			}
 		}
         if (it->second.getMembers().empty())

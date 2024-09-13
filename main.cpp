@@ -6,11 +6,11 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:28 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/23 04:43:08 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/13 10:27:53 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "server.hpp"
+#include "inc/server.hpp"
 #include <cstdlib>
 #include <iostream>
 
@@ -40,6 +40,12 @@ int main(int ac, char **av)
 	int port = atoi(av[1]);
 	//get password from input
 	std::string password = av[2];
+	// check if the password is space
+	if (password == " ")
+	{
+		std::cerr << "Error: Password cannot be empty" << std::endl;
+		return (1);
+	}
 	try
 	{
 		if (!check_port(av[1]) || port < 1024 || port > 65535)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ChannelFile.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 10:34:01 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/11 20:28:17 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/13 10:44:00 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,7 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
-#include "../server.hpp"
-#include "Tools.hpp"
+#include "client.hpp"
 
 
 class Client;

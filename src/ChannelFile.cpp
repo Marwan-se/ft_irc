@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   ChannelFile.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 10:41:37 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/11 20:31:09 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/13 09:59:37 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ChannelFile.hpp"
+#include "../inc/ChannelFile.hpp"
 #include <cstddef>
 
 

@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Message.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 14:17:11 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/12 18:12:08 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/13 11:00:18 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Message.hpp"
+#include "../inc/Message.hpp"
 #include <cstddef>
 #include <iterator>
 #include <map>
@@ -20,10 +20,10 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <vector>
-#include "ChannelFile.hpp"
-#include "RPL.hpp"
-#include "../server.hpp"
-#include "Tools.hpp"
+#include "../inc/ChannelFile.hpp"
+#include "../inc/RPL.hpp"
+#include "../inc/server.hpp"
+#include "../inc/Tools.hpp"
 
 Message::Message()
 {
@@ -82,14 +82,14 @@ void Server::handlingTOPIC(Message message, std::map<std::string, Channel> &chan
 	{
 		 if (message.getTarget() == ":" || message.getTarget().empty())
 		{
-				std::string m = ERR_NEEDMOREPARAMS(client.gethostname(), client.getClient_nick(), "TOPIC");
+				std::string m = ERR_NEEDMOREPARAMS(client.get_hostname(), client.getClient_nick(), "TOPIC");
 				send(client.getClient_fd(), m.c_str(), m.length(),0);
 				return ;
 
 		}
 		if (message.getTarget().at(0) != '#' || channels.find(message.getTarget()) == channels.end())
 		{
-				std::string m = ERR_NOSUCHCHANNEL(client.gethostname(),client.getClient_nick(), message.getTarget());
+				std::string m = ERR_NOSUCHCHANNEL(client.get_hostname(),client.getClient_nick(), message.getTarget());
 				send(client.getClient_fd(), m.c_str(), m.length(),0);
 		   return ;
         }
@@ -98,7 +98,7 @@ void Server::handlingTOPIC(Message message, std::map<std::string, Channel> &chan
 			if (!message.getMsg().empty())
 			{
 				//show topic of the channel 
-				std::string m = RPL_TOPIC(client.gethostname(), client.getClient_nick(), channels[message.getTarget()].getName(), channels[message.getTarget()].getTopic());
+				std::string m = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), channels[message.getTarget()].getName(), channels[message.getTarget()].getTopic());
 				send(client.getClient_fd(), m.c_str(), m.length(), 0);
 			}
 			else 
@@ -112,7 +112,7 @@ void Server::handlingTOPIC(Message message, std::map<std::string, Channel> &chan
 				{
 					// std::time_t topicTime = std::time(NULL);
 					channels[message.getTarget()].setTopic(message.getMsg());
-					std::string m = RPL_TOPIC(client.gethostname(), client.getClient_nick(), channels[message.getTarget()].getName(), channels[message.getTarget()].getTopic());
+					std::string m = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), channels[message.getTarget()].getName(), channels[message.getTarget()].getTopic());
 					send(client.getClient_fd(), m.c_str(), m.length(),0);
 					//brodcast to all clients of the channel that topic is changed.
 					// RPL_TOPICWHOTIME(client, channel, nickname, time) brodcast this hh
@@ -120,7 +120,7 @@ void Server::handlingTOPIC(Message message, std::map<std::string, Channel> &chan
 				else
 				{
 					//not an operator
-					std::string m = ERR_CHANOPRIVSNEEDED(client.gethostname(), client.getClient_nick(), channels[message.getTarget()].getName());
+					std::string m = ERR_CHANOPRIVSNEEDED(client.get_hostname(), client.getClient_nick(), channels[message.getTarget()].getName());
 					send(client.getClient_fd(), m.c_str(), m.length(),0);
 				}
 			}
@@ -128,7 +128,7 @@ void Server::handlingTOPIC(Message message, std::map<std::string, Channel> &chan
 		else
 		{
 				// error not a member of the channel 
-				std::string m = ERR_NOTONCHANNEL(client.gethostname(), client.getClient_nick(), channels[message.getTarget()].getName());
+				std::string m = ERR_NOTONCHANNEL(client.get_hostname(), client.getClient_nick(), channels[message.getTarget()].getName());
 				send(client.getClient_fd(), m.c_str(), m.length(),0);
 		}
 	}
@@ -140,20 +140,20 @@ void Server::handlingINV(Message message, std::map<std::string, Channel> &channe
 	{
 		if (message.getTarget().empty() || message.getMsg().empty())
 		{
-			std::string m = ERR_NEEDMOREPARAMS(client.gethostname(), client.getClient_nick(), "INVITE");
+			std::string m = ERR_NEEDMOREPARAMS(client.get_hostname(), client.getClient_nick(), "INVITE");
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
 			return ;
 		}
 		if (channels.find(message.getMsg()) == channels.end())
 		{
-			std::string m = ERR_NOSUCHCHANNEL(client.gethostname(), client.getClient_nick(), message.getMsg());
+			std::string m = ERR_NOSUCHCHANNEL(client.get_hostname(), client.getClient_nick(), message.getMsg());
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
 			std::cout << client.getClient_fd() << std::endl;
 			return ;
 		}
 		if (client_exist(message.getTarget()).getClient_nick().empty())
 		{
-			std::string m = ERR_NOSUCHNICK(client.gethostname(), client.getClient_nick(), message.getTarget());
+			std::string m = ERR_NOSUCHNICK(client.get_hostname(), client.getClient_nick(), message.getTarget());
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
 			return ;
 		}
@@ -178,7 +178,7 @@ void Server::handlingINV(Message message, std::map<std::string, Channel> &channe
 			send(invited.getClient_fd(), m.c_str(), m.length(), 0);
 		}
 		else {
-			std::string m = ERR_CHANOPRIVSNEEDED(client.gethostname(), client.getClient_nick(), message.getMsg());
+			std::string m = ERR_CHANOPRIVSNEEDED(client.get_hostname(), client.getClient_nick(), message.getMsg());
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
 		}
 	}
@@ -192,19 +192,19 @@ void    Server::handlingMODE(Message message, std::map<std::string, Channel> &ch
 	{
 		if (message.getTarget().empty() || message.getMsg().empty() || message.getComm().empty())
 		{
-			std::string m = ERR_NEEDMOREPARAMS(client.gethostname(), client.getClient_nick(), message.getCommand());
+			std::string m = ERR_NEEDMOREPARAMS(client.get_hostname(), client.getClient_nick(), message.getCommand());
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
 			return ;
 		}
 		if (channels.find(message.getTarget()) == channels.end())
 		{
-			std::string m = ERR_NOSUCHCHANNEL(client.gethostname(), client.getClient_nick(), message.getTarget());
+			std::string m = ERR_NOSUCHCHANNEL(client.get_hostname(), client.getClient_nick(), message.getTarget());
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
 			return ;
 		}
 		else if (!client.getisOp())
 		{
-			std::string m = ERR_CHANOPRIVSNEEDED(client.gethostname(), client.getClient_nick(), message.getTarget());
+			std::string m = ERR_CHANOPRIVSNEEDED(client.get_hostname(), client.getClient_nick(), message.getTarget());
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
 		}
 		else {
@@ -272,7 +272,7 @@ void    Server::handlingMODE(Message message, std::map<std::string, Channel> &ch
 				{
 					if (!is_member(message.getTarget(), message.getComm()))
 					{
-						std::string m = ERR_NOSUCHNICK(client.gethostname(), client.getClient_nick(), message.getComm());
+						std::string m = ERR_NOSUCHNICK(client.get_hostname(), client.getClient_nick(), message.getComm());
 						send(client.getClient_fd(), m.c_str(), m.length(),0);
 						return ;
 					}
@@ -290,7 +290,7 @@ void    Server::handlingMODE(Message message, std::map<std::string, Channel> &ch
 				{
 					if (!is_member(message.getTarget(), message.getComm()))
 					{
-						std::string m = ERR_NOSUCHNICK(client.gethostname(), client.getClient_nick(), message.getComm());
+						std::string m = ERR_NOSUCHNICK(client.get_hostname(), client.getClient_nick(), message.getComm());
 						send(client.getClient_fd(), m.c_str(), m.length(),0);
 						return ;
 					}
@@ -324,7 +324,7 @@ std::string toUpper(std::string str)
 	return str;
 }
 
-void Server::parsingMsg(char *msg, Client &client)
+void Server::parsingMsg(std::string msg, Client &client)
 {
 	Message message;
 	std::string str = std::string(msg);
@@ -354,9 +354,13 @@ void Server::parsingMsg(char *msg, Client &client)
 	else if (cmdUpper == "PRIVMSG"){
 		message.setCommand("PRIVMSG");
 	}
+	else if (cmdUpper == "NICK" || cmdUpper == "PASS" || cmdUpper == "USER")
+	{
+		return;
+	}
 	else
 	{
-		str = ERR_UNKNOWNCOMMAND(client.gethostname(), client.getClient_nick(), cmdUpper);
+		str = ERR_UNKNOWNCOMMAND(client.get_hostname(), client.getClient_nick(), cmdUpper);
 		send(client.getClient_fd(), str.c_str(), str.size(), 0);
 		return;
 	}

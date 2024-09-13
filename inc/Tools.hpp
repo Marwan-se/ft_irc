@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Tools.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 16:48:40 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/11 19:43:55 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/13 09:38:03 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "ChannelFile.hpp"
-#include "../server.hpp"
+#include "server.hpp"
 #include "RPL.hpp"
 
 class Client;

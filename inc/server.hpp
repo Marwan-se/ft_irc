@@ -3,19 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/12 19:46:49 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/13 11:27:01 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 
-
-// #include "commands/Message.hpp"
-#include "commands/ChannelFile.hpp"
+#include "Message.hpp"
+#include "ChannelFile.hpp"
+#include "client.hpp"
 #include <iostream>
 #include <string>
 #include <sys/poll.h>
@@ -31,39 +31,6 @@
 #include <map>
 
 
-class Channel;
-class	Server;
-class	Client
-{
-	private:
-		int					Client_fd;
-		std::string			Client_ip;
-		std::string			nick;
-		std::string			user;
-		std::string			hostname;
-		bool				isOp;
-		
-		bool				is_authenticated;
-	public:
-		int		getClient_fd();
-		std::string		getClient_nick();
-		std::string		getClient_user();
-		std::string		gethostname();
-		std::string		getClient_ip();
-		
-		void	setClient_nick(std::string n);
-		void	sethostname(std::string n);
-		void	setClient_fd(int fd);
-		void	setClient_ip(std::string ip);
-		void	set_authenticated();
-		void sendMsg(const std::string &message);
-		bool getisOp();
-		void setisOp(bool x);
-};
-
-class	Client;
-class Channel;
-class Message;
 class	Server
 {
 	private:
@@ -74,6 +41,9 @@ class	Server
 
 	public:
 		std::map<std::string ,Channel> channels;
+		std::map<int , std::string > ctrl_d;
+		Server();
+		~Server();
 	
 		void	init_Socket(int domain, int type, int protocol, int port);
 		void	Server_connection(int port, std::string password);
@@ -83,14 +53,12 @@ class	Server
 		
 		static bool signal_received_flag;
 		static void SignalHandler(int signum);
-
-		void	delete_client_data_inpoll(int fd);
+		
 		void	close_allfds();
-
-		void	receive_data(int fd);
+		void	receive_data(int fd, std::string password);
 		//COMMANDS
 
-		void parsingMsg(char *msg, Client &client);
+		void parsingMsg(std::string msg, Client &client);
 		void join(Message &comm, Client &client);
 		void kick(Message &comm, Client &client);
 		void privmsg(Message &comm , Client &client);
@@ -98,7 +66,7 @@ class	Server
 		bool is_member(std::string nick, std::string ch_name);
 		bool is_op(std::string nick, std::string ch_name);
 		void remove_member(std::string nick, std::string ch_name);
-		void remove_from_ch(Client &client, std::map<std::string, Channel> &ch);
+		void remove_from_ch(Client &client, std::map<std::string, Channel> &ch, bool flag);
 		void msg_chann(Client client, std::string msg, std::string ch_name,std::string target, std::string command);
 		void handlingINV(Message message, std::map<std::string, Channel> &channels, Client &client);
 		void handlingMODE(Message message, std::map<std::string, Channel> &channels, Client &client);
@@ -106,3 +74,4 @@ class	Server
 
 };
 
+void trimString(std::string &str);
