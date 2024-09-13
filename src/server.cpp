@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/13 13:18:33 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/13 15:43:13 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,15 @@ void trimString(std::string &str)
     }
 }
 
+bool empty_line(std::string s)
+{
+	for (size_t l = 0;  l < s.size() - 2; l++) 
+	{
+		if (s[l] != ' ' && s[l] != '\t')
+			return false;
+	}
+	return true;
+}
 
 void	Server::receive_data(int fd, std::string password)
 {
@@ -118,6 +127,11 @@ void	Server::receive_data(int fd, std::string password)
 		if (line.str().find("\r\n") != std::string::npos)
 		{
 			ctrl_d[fd] += line.str();
+			if (ctrl_d[fd].size() == 2 || empty_line(ctrl_d[fd]))
+			{
+				ctrl_d[fd].clear();
+				return;
+			}
 			handle_auth(fd, password, ctrl_d[fd], client_info, client);
 			if (client_info[fd].get_authenticated() == true)
 				parsingMsg(ctrl_d[fd], client);

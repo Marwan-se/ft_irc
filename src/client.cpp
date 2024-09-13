@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/08 13:17:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/13 13:31:13 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/13 15:52:56 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ Client::Client()
 	pass_received = false;
 	nick_received = false;
 	user_received = false;
+	isOp = false;
 }
 
 Client::~Client(){}

@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 16:49:06 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/13 13:51:39 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/13 15:05:40 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,7 @@ void Server::remove_from_ch(Client &client, std::map<std::string, Channel> &ch, 
 				}
 			}
 		}
-        if (it->second.getMembers().empty())
+		if (it->second.getMembers().empty())
 		{
 			std::map<std::string, Channel>::iterator tmp = it;
 			it++;
