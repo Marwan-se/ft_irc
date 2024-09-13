@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   nick.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/13 08:02:46 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/13 10:19:58 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/13 17:34:54 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,11 +49,8 @@ void	handle_nick_command(int fd, std::string message, std::string rest_of_messag
 		message += rest_of_message;
 		trimString(message);
 		message_collon = message.substr(1, message.length() - 1);
-		std::cout << "message_collon: {" << message_collon << "}" << std::endl;
-		std::cout << "message_collon size: {" << message_collon.size() << "}" << std::endl;
 		if (message_collon.empty())
 		{
-			std::cout << "hahahahhahaha: "<< std::endl;
 			if (client_info[fd].getClient_nick().empty())
 			{
 				if (send(fd, ERR_NONICKNAMEGIVEN(client.get_hostname(), star, command).c_str(), \
@@ -66,7 +63,6 @@ void	handle_nick_command(int fd, std::string message, std::string rest_of_messag
 				std::cerr << "Error: send failed" << std::endl;
 			return;
 		}
-		std::cout << "TESTTTTTTTTT: "<< std::endl;
 		if (message_collon.find_first_of("#:,*?!@%. '\t'") != std::string::npos || message_collon[0] == '$' || message_collon[0] == '&' \
 			|| isdigit(message_collon[0]))
 		{
@@ -84,8 +80,6 @@ void	handle_nick_command(int fd, std::string message, std::string rest_of_messag
 		}
 		client_info[fd].setClient_nick(message_collon);
 		client_info[fd].nick_received = true;
-		std::cout << "nick size is {" << client_info[fd].getClient_nick().size() << "}" << std::endl;
-		std::cout << "nick is: " << client_info[fd].getClient_nick() << std::endl;
 	}
 	else
 	{

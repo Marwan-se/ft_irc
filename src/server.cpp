@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/13 15:43:13 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/13 17:06:30 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,10 +124,10 @@ void	Server::receive_data(int fd, std::string password)
 	else
 	{
 		std::stringstream line(buffer);
-		if (line.str().find("\r\n") != std::string::npos)
+		if (line.str().find("\n") != std::string::npos)
 		{
 			ctrl_d[fd] += line.str();
-			if (ctrl_d[fd].size() == 2 || empty_line(ctrl_d[fd]))
+			if (ctrl_d[fd].size() == 1 || empty_line(ctrl_d[fd]))
 			{
 				ctrl_d[fd].clear();
 				return;
