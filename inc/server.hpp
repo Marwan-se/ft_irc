@@ -6,14 +6,16 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/08/23 04:42:12 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/13 11:27:01 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVER_HPP
-# define SERVER_HPP
+#pragma once
 
 
+#include "Message.hpp"
+#include "ChannelFile.hpp"
+#include "client.hpp"
 #include <iostream>
 #include <string>
 #include <sys/poll.h>
@@ -26,18 +28,8 @@
 #include <arpa/inet.h>
 #include <poll.h>
 #include <csignal>
+#include <map>
 
-class	Client
-{
-	private:
-		int					Client_fd;
-		std::string			Client_ip;
-	public:
-		int		getClient_fd();
-		
-		void	setClient_fd(int fd);
-		void	setClient_ip(std::string ip);
-};
 
 class	Server
 {
@@ -45,8 +37,13 @@ class	Server
 		int					Socket_fd;
 		struct sockaddr_in	Server_addr;
 		std::vector<struct pollfd > fdes;
-		std::vector<Client> client_vec;
+		std::map<int ,Client> client_info;
+
 	public:
+		std::map<std::string ,Channel> channels;
+		std::map<int , std::string > ctrl_d;
+		Server();
+		~Server();
 	
 		void	init_Socket(int domain, int type, int protocol, int port);
 		void	Server_connection(int port, std::string password);
@@ -56,12 +53,25 @@ class	Server
 		
 		static bool signal_received_flag;
 		static void SignalHandler(int signum);
-
-		void	delete_client_data_inpoll(int fd);
+		
 		void	close_allfds();
+		void	receive_data(int fd, std::string password);
+		//COMMANDS
 
-		void	receive_data(int fd);
+		void parsingMsg(std::string msg, Client &client);
+		void join(Message &comm, Client &client);
+		void kick(Message &comm, Client &client);
+		void privmsg(Message &comm , Client &client);
+		Client client_exist(std::string);
+		bool is_member(std::string nick, std::string ch_name);
+		bool is_op(std::string nick, std::string ch_name);
+		void remove_member(std::string nick, std::string ch_name);
+		void remove_from_ch(Client &client, std::map<std::string, Channel> &ch, bool flag);
+		void msg_chann(Client client, std::string msg, std::string ch_name,std::string target, std::string command);
+		void handlingINV(Message message, std::map<std::string, Channel> &channels, Client &client);
+		void handlingMODE(Message message, std::map<std::string, Channel> &channels, Client &client);
+		void handlingTOPIC(Message message, std::map<std::string, Channel> &channels, Client &client);
+
 };
 
-
-#endif
+void trimString(std::string &str);
