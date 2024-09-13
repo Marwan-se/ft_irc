@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Tools.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 16:49:06 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/13 11:59:49 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/13 13:51:39 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,17 +120,15 @@ void Server::remove_from_ch(Client &client, std::map<std::string, Channel> &ch, 
 {
 	std::string rpl;
 
-	for (std::map<std::string, Channel>::iterator it = ch.begin(); it != ch.end(); it++) 
+	for (std::map<std::string, Channel>::iterator it = ch.begin(); it != ch.end();) 
 	{
-		std::vector<Client> members = it->second.getMembers();
-		for (size_t l = 0; l < members.size(); l++) 
+		for (size_t l = 0; l < it->second.getMembers().size(); l++) 
 		{
-			if (members[l].getClient_nick() == client.getClient_nick())
+			if (it->second.getMembers()[l].getClient_nick() == client.getClient_nick())
 			{
-				if (is_op(members[l].getClient_nick(), it->second.getName()))
+				if (is_op(it->second.getMembers()[l].getClient_nick(), it->second.getName()))
                     it->second.getMembers()[l].setisOp(false);
-				std::cout << it->second.getMembers()[l].getClient_nick() << std::endl;
-				it->second.getMembers().erase(members.begin() + l);
+				it->second.getMembers().erase(it->second.getMembers().begin() + l);
 				if (flag == 0)
 				{
 					rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "PART" + " " + it->second.getName() + "\r\n";
@@ -139,7 +137,14 @@ void Server::remove_from_ch(Client &client, std::map<std::string, Channel> &ch, 
 			}
 		}
         if (it->second.getMembers().empty())
-		    this->channels.erase(it);
+		{
+			std::map<std::string, Channel>::iterator tmp = it;
+			it++;
+		    ch.erase(tmp->second.getName());
+		}
+		else 
+			it++;
+		
 	}
 }
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/08 13:17:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/13 10:41:50 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/13 13:31:13 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@ Client::Client()
 	pass_received = false;
 	nick_received = false;
 	user_received = false;
-	
 }
 
 Client::~Client(){}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/13 12:04:19 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/13 13:18:33 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ void	Server::receive_data(int fd, std::string password)
 			}
 		}
 		remove_from_ch(client_info[fd], this->channels, 1);
-		// client_info.erase(fd);
+		client_info.erase(fd);
 		ctrl_d.erase(fd);
 		close(fd);
 	}
