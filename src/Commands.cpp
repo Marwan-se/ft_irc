@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 17:54:50 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/13 15:53:19 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/13 18:47:31 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -277,11 +277,11 @@ void Server::privmsg(Message &comm , Client &client)
 		}
 		else if (!is_channel)
 		{
-			rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "PRIVMSG" + " " + client_name[l] + " :" + msg[0] + "\r\n";
+			rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "PRIVMSG" + " " + client_name[l] + " " + msg[0] + "\r\n";
 			send(client_exist(client_name[l]).getClient_fd(), rpl.c_str(), rpl.size(), 0);
 		}
 		else 
-			msg_chann(client," :" + msg[0], it->second.getName(),it->second.getName(), "PRIVMSG");
+			msg_chann(client, " " + msg[0], it->second.getName(),it->second.getName(), "PRIVMSG");
 	}
 	
 }
