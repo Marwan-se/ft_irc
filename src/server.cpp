@@ -6,27 +6,28 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/13 08:08:22 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/13 17:05:16 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "server.hpp"
-#include "replies.hpp"
-#include "client.hpp"
-
+#include "../inc/server.hpp"
 #include <cstddef>
+#include <cstdlib>
 #include <iostream>
 #include <iterator>
 #include <string>
 #include <sys/poll.h>
-#include <sstream>
 #include <sys/signal.h>
 #include <vector>
-#include <map>
 #include <cstring>
-#include <cctype>
+#include <map>
 
 bool	Server::signal_received_flag = false;
+
+Server::Server()
+{}
+Server::~Server()
+{}
 
 void Server::SignalHandler(int signum)
 {
@@ -34,18 +35,6 @@ void Server::SignalHandler(int signum)
 	std::cout << std::endl << "Signal Received!" << std::endl;
 	Server::signal_received_flag = true;
 }
-
-// void	Server::close_allfds()
-// {
-// 	for (size_t i = 0; i < client_vec.size(); i++)
-// 		close(client_vec[i].getClient_fd());
-// 	if (Socket_fd != -1)
-// 	{
-// 		std::cout << "Server <" << Socket_fd << "> disconnected" << std::endl;
-// 		std::cout << "All clients disconnected !!!." << std::endl;
-// 		close(Socket_fd);
-// 	}
-// }
 
 void	Server::close_allfds()
 {
@@ -103,9 +92,10 @@ void trimString(std::string &str)
 void	Server::receive_data(int fd, std::string password)
 {
 	Client client = client_info[fd];
-	char buffer[512];
+	char buffer[1024];
 	memset(buffer, 0, sizeof(buffer));
-	ssize_t	data = recv(fd, buffer, sizeof(buffer) -1, 0);
+	ssize_t	data = recv(fd, buffer, sizeof(buffer), 0);
+	std::cout << ">>>>>>>>>" << data << std::endl;
 	if (data <= 0)
 	{
 		std::cout << "Client <" << fd << "> disconnected" << std::endl;
@@ -118,19 +108,27 @@ void	Server::receive_data(int fd, std::string password)
 				break;
 			}
 		}
+		remove_from_ch(client_info[fd], this->channels, 1);
 		client_info.erase(fd);
 		ctrl_d.erase(fd);
 		close(fd);
-		
+	}
+	else if (data > 512)
+	{
+		std::cout << "data size is:" << data << std::endl;
+		if (send(fd, ERR_INPUTTOOLONG(client.get_hostname(), client.getClient_nick()).c_str(), ERR_INPUTTOOLONG(client.get_hostname(), client.getClient_nick()).size(), 0) < 0)
+			std::cout << "Error: send failed" << std::endl;
+		return;
 	}
 	else
 	{
 		std::stringstream line(buffer);
-		if (line.str().find("\r\n") != std::string::npos)
+		if (line.str().find("\n") != std::string::npos)
 		{
 			ctrl_d[fd] += line.str();
-			// std::cout << "ctrl_d: {" << ctrl_d[fd] << "}";
 			handle_auth(fd, password, ctrl_d[fd], client_info, client);
+			if (client_info[fd].get_authenticated() == true)
+				parsingMsg(ctrl_d[fd], client);
 			ctrl_d[fd].clear();
 		}
 		else
@@ -176,9 +174,9 @@ void	Server::Server_connection(int port, std::string password)
 					client.setClient_ip(inet_ntoa(client_addr.sin_addr));
 					client_info.insert(std::pair<int, Client>(incoming_fd, client));
 					fdes.push_back(new_client);
-					//insert for ctrl+d
 					ctrl_d.insert(std::pair<int, std::string>(incoming_fd, ""));
 					std::cout << "Client <" <<  incoming_fd << "> connected" << std::endl;
+					client_info[incoming_fd].set_hostname();
 				}
 				else
 					receive_data(fdes[i].fd, password);
@@ -187,5 +185,3 @@ void	Server::Server_connection(int port, std::string password)
 	}
 	close_allfds();
 }
-
-//POLLOUT

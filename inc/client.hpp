@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/08 13:16:09 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/12 23:46:17 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/13 13:32:35 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLIENT_HPP
-# define CLIENT_HPP
+#pragma once
 
 #include <cstddef>
 #include <iostream>
@@ -33,45 +32,42 @@ class	Client
 	private:
 		int					Client_fd;
 		std::string			Client_ip;
-		bool				is_authenticated;
+		std::string			nick;
+		std::string			user;
+		std::string			hostname;
 		std::string			command;
 		std::string			message;
-		std::string			hostname;
+		bool				isOp;
 		
-
+		bool				is_authenticated;
 	public:
-		Client();
-		int		getClient_fd();
-		
-		void	setClient_fd(int fd);
-		void	setClient_ip(std::string ip);
-		std::string	getClient_ip();
-
-		void	set_command(std::string cmd);
-		void	set_message(std::string msg);
-		std::string get_message();
-
-		void	set_authenticated();
-		bool	get_authenticated();
-
-		void	set_hostname(std::string host);
-		std::string	get_hostname();
-		
-		std::string			Client_nickname;
-
 		bool				pass_received;
 		bool				nick_received;
-		
 		bool				user_received;
-		std::string			user_name;
-		std::string			real_name;
-
+		Client();
+		~Client();
 		
-		//set client nickname
-		void	setClient_nickname(std::string nickname);
-		std::string	getClient_nickname();
-
+		int				getClient_fd();
+		bool 			getisOp();
+		bool			get_authenticated();
+		std::string		getClient_nick();
+		std::string		getClient_user();
+		std::string		get_hostname();
+		std::string		getClient_ip();
+		
+		
+		
+		void	setClient_nick(std::string n);
+		void	setClient_user(std::string n);
+		void	set_hostname();
+		void	setClient_fd(int fd);
+		void	setClient_ip(std::string ip);
+		void 	setisOp(bool x);
+		void	set_authenticated();
+		void	set_command(std::string cmd);
+		void	set_message(std::string msg);
 };
+
 
 void	pass_empty(int fd, std::map<int , Client> &client_info, Client &client, std::string command);
 void	bad_pass(int fd, std::map<int , Client> &client_info, Client &client, std::string command);
@@ -80,5 +76,3 @@ void	handle_pass_command(int fd, std::string password, std::string message, std:
 void	handle_user_command(int fd, std::string message, std::string rest_of_message, std::map<int , Client> &client_info, Client &client, std::string command);
 void	handle_nick_command(int fd, std::string message, std::string rest_of_message, std::map<int , Client> &client_info, Client &client, std::string command);
 void	handle_auth(int fd, std::string password, std::string ctrl_d, std::map<int , Client> &client_info, Client &client);
-
-#endif
