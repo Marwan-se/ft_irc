@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/13 17:05:16 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/14 02:29:04 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,13 +70,25 @@ void	Server::init_Socket(int domain, int type, int protocol, int port)
 		throw (std::runtime_error("Error: socket failed"));
 	int opt = 1;
 	if (setsockopt(Socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+	{
+		close(Socket_fd);
 		throw (std::runtime_error("Error: setsockopt failed"));
+	}
 	if (fcntl(Socket_fd, F_SETFL, O_NONBLOCK) < 0)
+	{
+		close(Socket_fd);
 		throw (std::runtime_error("Error: fcntl failed"));
+	}
 	if (bind(Socket_fd, (struct sockaddr *)&Server_addr, sizeof(Server_addr)) < 0)
+	{
+		close(Socket_fd);
 		throw (std::runtime_error("Error: bind failed"));
+	}
 	if (listen(Socket_fd, SOMAXCONN) < 0)
+	{
+		close(Socket_fd);
 		throw (std::runtime_error("Error: listen failed"));
+	}
 }
 
 void trimString(std::string &str)
@@ -88,6 +100,17 @@ void trimString(std::string &str)
     }
 }
 
+bool empty_line(std::string s)
+{
+	for (size_t l = 0;  l < s.size() - 2; l++) 
+	{
+		if (s[l] != ' ' && s[l] != '\t')
+			return false;
+	}
+	return true;
+}
+
+ 
 
 void	Server::receive_data(int fd, std::string password)
 {
@@ -95,7 +118,6 @@ void	Server::receive_data(int fd, std::string password)
 	char buffer[1024];
 	memset(buffer, 0, sizeof(buffer));
 	ssize_t	data = recv(fd, buffer, sizeof(buffer), 0);
-	std::cout << ">>>>>>>>>" << data << std::endl;
 	if (data <= 0)
 	{
 		std::cout << "Client <" << fd << "> disconnected" << std::endl;
@@ -115,7 +137,6 @@ void	Server::receive_data(int fd, std::string password)
 	}
 	else if (data > 512)
 	{
-		std::cout << "data size is:" << data << std::endl;
 		if (send(fd, ERR_INPUTTOOLONG(client.get_hostname(), client.getClient_nick()).c_str(), ERR_INPUTTOOLONG(client.get_hostname(), client.getClient_nick()).size(), 0) < 0)
 			std::cout << "Error: send failed" << std::endl;
 		return;
@@ -126,6 +147,11 @@ void	Server::receive_data(int fd, std::string password)
 		if (line.str().find("\n") != std::string::npos)
 		{
 			ctrl_d[fd] += line.str();
+			if (ctrl_d[fd].size() == 1 || empty_line(ctrl_d[fd]))
+			{
+				ctrl_d[fd].clear();
+				return;
+			}
 			handle_auth(fd, password, ctrl_d[fd], client_info, client);
 			if (client_info[fd].get_authenticated() == true)
 				parsingMsg(ctrl_d[fd], client);

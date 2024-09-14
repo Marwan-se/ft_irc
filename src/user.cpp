@@ -6,7 +6,7 @@
 /*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/13 08:02:47 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/13 17:40:29 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/13 19:51:38 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,7 @@ bool	parse_user(std::string message, Client &client, std::string command, int fd
 	while (j <= 3)
 	{
 		allparam >> param;
-		std::cout << "param: " << param << std::endl;
 		if (param.empty() || param[0] == '\0') {
-			std::cout << "param is empty" << std::endl;
 			break;
 		}
 		j++;
@@ -38,6 +36,13 @@ bool	parse_user(std::string message, Client &client, std::string command, int fd
 		{
 			if (param[i] == ':')
 			{
+				if (client.getClient_nick().empty())
+				{
+					if (send(fd, ERR_NEEDMOREPARAMS(client.get_hostname(), "*", command).c_str(), \
+						ERR_NEEDMOREPARAMS(client.get_hostname(), "*", command).length(), 0) < 0)
+						std::cerr << "Error: send failed" << std::endl;
+					return false;
+				}
 				if (send(fd, ERR_NEEDMOREPARAMS(client.get_hostname(), client.getClient_nick(), command).c_str(), \
 					ERR_NEEDMOREPARAMS(client.get_hostname(), client.getClient_nick(), command).length(), 0) < 0)
 					std::cerr << "Error: send failed" << std::endl;
@@ -48,10 +53,16 @@ bool	parse_user(std::string message, Client &client, std::string command, int fd
 		if (j == 1)
 			client_info[fd].setClient_user(param);
 		param.clear();
-		std::cout << "j: " << j << std::endl;
 	}
 	if (j <= 3)
 	{
+		if (client.getClient_nick().empty())
+		{
+			if (send(fd, ERR_NEEDMOREPARAMS(client.get_hostname(), "*", command).c_str(), \
+				ERR_NEEDMOREPARAMS(client.get_hostname(), "*", command).length(), 0) < 0)
+				std::cerr << "Error: send failed" << std::endl;
+			return false;
+		}
 		if (send(fd, ERR_NEEDMOREPARAMS(client.get_hostname(), client.getClient_nick(), command).c_str(), \
 			ERR_NEEDMOREPARAMS(client.get_hostname(), client.getClient_nick(), command).length(), 0) < 0)
 			std::cerr << "Error: send failed" << std::endl;
