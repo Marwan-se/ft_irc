@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/13 11:27:01 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/13 17:01:15 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ class	Server
 		void handlingINV(Message message, std::map<std::string, Channel> &channels, Client &client);
 		void handlingMODE(Message message, std::map<std::string, Channel> &channels, Client &client);
 		void handlingTOPIC(Message message, std::map<std::string, Channel> &channels, Client &client);
+		void broadcastToChan(Client &client, Channel &chann, std::string tar, std::string t, int i);
 
 };
 

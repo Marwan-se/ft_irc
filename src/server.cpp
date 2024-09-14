@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/13 13:18:33 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/14 08:48:16 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ void	Server::receive_data(int fd, std::string password)
 	else
 	{
 		std::stringstream line(buffer);
-		if (line.str().find("\r\n") != std::string::npos)
+		if (line.str().find("\n") != std::string::npos)
 		{
 			ctrl_d[fd] += line.str();
 			handle_auth(fd, password, ctrl_d[fd], client_info, client);

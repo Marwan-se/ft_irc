@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RPL.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/08 21:56:27 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/13 11:13:15 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/14 06:46:16 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,9 @@
 
 //********TOPIC*********//
 
-# define RPL_TOPIC(hostname,client,channel,topic) (":" + hostname + " 332 " + client + " " + channel + " " + topic + "\r\n")
-# define RPL_TOPICWHOTIME(hostname,client,channel,nick,time) (":" + hostname + " 333 " + client + " " + channel + " " + nick + time + "\r\n")
-# define RPL_NOTOPIC(client, channel) (":irc.1337.ma 331 " + client + channel + " :No topic is set\r\n")
+# define RPL_TOPIC(hostname,client,channel,topic) (":" + hostname + " 332 " + client + " " + channel + " :" + topic + "\r\n")
+# define RPL_TOPICWHOTIME(hostname,client,channel,nick,time) (":" + hostname + " 333 " + client + " " + channel + " " + nick + " " + time + "\r\n")
+# define RPL_NOTOPIC(hostname, client, channel) (":" + hostname + " 332 " + client + " " + channel + " :No topic is set\r\n")
 
 
 //********JOIN*********//
