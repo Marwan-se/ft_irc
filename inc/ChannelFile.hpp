@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ChannelFile.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 10:34:01 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/13 10:44:00 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/14 15:58:30 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 #include <cstddef>
 #include <cstdlib>
+#include <ctime>
 #include <string>
 #include <vector>
 #include "client.hpp"
@@ -25,10 +26,12 @@ class Channel
     private:
         std::string name;
         std::string topic;
+        std::string topicSetter;
         std::vector<Client> members;
         std::vector<std::string> invited;
         size_t lim;
         std::string key;
+        std::time_t topicTime;
         bool t;
         bool i;
         bool k;
@@ -48,9 +51,12 @@ class Channel
         bool getTopicRES();
         bool getInviteOnly();
         bool getLimit();
+        std::time_t getTime();
         Client& getClientMember(std::string nickname);
+        std::string getTopicSetter();
 
 
+        void setTopicSetter(std::string);
         void setLimNum(size_t l);
         void setName(std::string name);
         void setTopic(std::string topic);
@@ -63,6 +69,7 @@ class Channel
         void setInviteOnly(bool x);
         void setKeyRES(bool x);
         void setLimit(bool x);
+        void setTime(time_t x);
 
 
         ~Channel();
