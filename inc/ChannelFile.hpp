@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 10:34:01 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/14 11:21:24 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/14 11:54:14 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class Channel
     private:
         std::string name;
         std::string topic;
+        std::string topicSetter;
         std::vector<Client> members;
         std::vector<std::string> invited;
         size_t lim;
@@ -52,8 +53,10 @@ class Channel
         bool getLimit();
         std::time_t getTime();
         Client& getClientMember(std::string nickname);
+        std::string getTopicSetter();
 
 
+        void setTopicSetter(std::string);
         void setLimNum(size_t l);
         void setName(std::string name);
         void setTopic(std::string topic);

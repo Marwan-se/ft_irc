@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 17:54:50 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/14 11:40:40 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/14 12:11:56 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,6 @@ void Server::join(Message &comm , Client &client)
 					Channel t_ch(tmpn);
 					t_ch.addMember(client);
 					t_ch.getMembers()[0].setisOp(true);
-					// this->channels.insert(std::pair<std::string, Channel>(tmpn,t_ch));
 					channels[tmpn] = t_ch;
 					rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "JOIN " + tmpn + "\r\n";
 					send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
@@ -78,15 +77,18 @@ void Server::join(Message &comm , Client &client)
 					if (is_invite(it->second.getInvited(), client.getClient_nick()))
 					{
 						it->second.addMember(client);
-						if (it->second.getTopicRES())
-						{
-							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, it->second.getTopic());
-							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-							// rpl = RPL_TOPICWHOTIME(client.get_hostname(), client.getClient_nick(), tmpn, )
-							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-						}
 						rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "JOIN " + tmpn + "\r\n";
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+						if (it->second.getTopicRES())
+						{
+							std::stringstream s1;
+							s1 << channels[ch_name[l]].getTime();
+							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, it->second.getTopic());
+							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+							rpl = RPL_TOPICWHOTIME(client.get_hostname(), client.getClient_nick(), ch_name[l], channels[ch_name[l]].getTopicSetter(), s1.str());
+							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+						}
+						msg_chann(client, "", tmpn, tmpn, "JOIN");
 						rpl = RPL_NAMREPLY(client.get_hostname(), client.getClient_nick(), tmpn, join_members(channels[tmpn].getMembers()));
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 						rpl = RPL_ENDOFNAMES(client.get_hostname(), client.getClient_nick(), tmpn);
@@ -100,15 +102,17 @@ void Server::join(Message &comm , Client &client)
 					else if (it->second.getKeyRES() == false && it->second.getInviteOnly() == false)
 					{
 						it->second.addMember(client);
-						if (it->second.getTopicRES())
-						{
-							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, it->second.getTopic());
-							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-							// rpl = RPL_TOPICWHOTIME(client.get_hostname(), client.getClient_nick(), tmpn, )
-							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-						}
 						rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "JOIN " + tmpn + "\r\n";
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+						if (it->second.getTopicRES())
+						{
+							std::stringstream s1;
+							s1 << channels[ch_name[l]].getTime();
+							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, it->second.getTopic());
+							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+							rpl = RPL_TOPICWHOTIME(client.get_hostname(), client.getClient_nick(), ch_name[l], channels[ch_name[l]].getTopicSetter(), s1.str());
+							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+						}
 						msg_chann(client, "", tmpn, tmpn, "JOIN");
 						rpl = RPL_NAMREPLY(client.get_hostname(), client.getClient_nick(), tmpn, join_members(channels[tmpn].getMembers()));
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
@@ -129,15 +133,17 @@ void Server::join(Message &comm , Client &client)
 					else
 					{
 						it->second.addMember(client);
-						if (it->second.getTopicRES())
-						{
-							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, it->second.getTopic());
-							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-							// rpl = RPL_TOPICWHOTIME(client.get_hostname(), client.getClient_nick(), tmpn, )
-							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-						}
 						rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "JOIN " + tmpn + "\r\n";
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+						if (it->second.getTopicRES())
+						{
+							std::stringstream s1;
+							s1 << channels[ch_name[l]].getTime();
+							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, it->second.getTopic());
+							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+							rpl = RPL_TOPICWHOTIME(client.get_hostname(), client.getClient_nick(), ch_name[l], channels[ch_name[l]].getTopicSetter(), s1.str());
+							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+						}
 						msg_chann(client, "", tmpn,tmpn, "JOIN");
 						rpl = RPL_NAMREPLY(client.get_hostname(), client.getClient_nick(), tmpn, join_members(channels[tmpn].getMembers()));
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);

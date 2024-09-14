@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 10:41:37 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/14 11:21:12 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/14 11:55:41 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,6 +131,17 @@ void Channel::addMember(Client &member)
 {
     this->members.push_back(member);
 }
+
+std::string Channel::getTopicSetter()
+{
+    return topicSetter;
+}
+
+void Channel::setTopicSetter(std::string s)
+{
+    this->topicSetter = s;
+}
+
 
 
 void Channel::removeMember(Client &member)

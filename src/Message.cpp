@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 14:17:11 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/14 11:42:25 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/14 11:57:16 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,6 +133,7 @@ void Server::handlingTOPIC(Message message, std::map<std::string, Channel> &chan
 			std::stringstream t;
 			t << channels[message.getTarget()].getTime();
 			channels[message.getTarget()].setTopic(message.getMsg());
+			channels[message.getTarget()].setTopicSetter(client.getClient_nick());
 			std::string m = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), channels[message.getTarget()].getName(), channels[message.getTarget()].getTopic());
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
 			broadcastToChan(client, channels[message.getTarget()], "", t.str(), 1);
