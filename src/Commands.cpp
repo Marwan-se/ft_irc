@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 17:54:50 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/13 18:47:31 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/14 11:43:38 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,12 +91,12 @@ void Server::join(Message &comm , Client &client)
 						rpl = RPL_ENDOFNAMES(client.get_hostname(), client.getClient_nick(), tmpn);
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 					}
-					else if (it->second.getLimit() == true && it->second.getMembers().size() >= (size_t)it->second.getLimNum())
+					else if (it->second.getLimit() == true && it->second.getMembers().size() >= it->second.getLimNum())
 					{
 						rpl = ERR_CHANNELISFULL(client.get_hostname(), client.getClient_nick(), tmpn);
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 					}
-					else if (it->second.getKeyRES() == false)
+					else if (it->second.getKeyRES() == false && it->second.getInviteOnly() == false)
 					{
 						it->second.addMember(client);
 						if (it->second.getTopicRES())
@@ -115,7 +115,7 @@ void Server::join(Message &comm , Client &client)
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 
 					}
-					else if (ch_key.empty() || l > ch_key.size() || ch_key[l] != it->second.getkey())
+					else if (it->second.getKeyRES() == true && (ch_key.empty() || l > ch_key.size() || ch_key[l] != it->second.getkey()))
 					{
 						rpl = ERR_BADCHANNELKEY(client.get_hostname(), client.getClient_nick(), tmpn);
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
@@ -226,6 +226,8 @@ void Server::kick(Message &comm , Client &client)
 			send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 			if (client.getClient_fd() != kicked.getClient_fd())
 				send(kicked.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+			if (channels[ch_name[l]].getMembers().empty())
+				channels.erase(ch_name[l]);
 		}
 	}
 }
