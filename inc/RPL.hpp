@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/08 21:56:27 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/14 15:59:51 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/14 16:00:54 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@
 # define ERR_NICKNAMEINUSE(hostname, nickname, command) (":" + hostname + " 433 " + nickname + " " + command + " :Nickname is already in use" + "\r\n")
 # define ERR_NOTREGISTERED(hostname, nickname, command) (":" + hostname + " 451 " + nickname + " " + command + " :You have not registered" + "\r\n")
 # define ERR_UNKNOWNCOMMAND(hostname,client,command) (":" + hostname + " 421 " + client + " " + command + " :Unknown command\r\n")
+# define ERR_INPUTTOOLONG(hostname,client) (":" + hostname + " 417 " + client + " " + " :Input line was too long\r\n")
 
 //********JOIN*********//
 

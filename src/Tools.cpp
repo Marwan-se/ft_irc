@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 16:49:06 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/14 16:10:02 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/14 16:39:27 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,6 @@ bool Server::is_member(std::string nick, std::string ch_name)
 	}
 	return false;
 }
-
-
 
 bool Server::is_op(std::string nick, std::string ch_name)
 {

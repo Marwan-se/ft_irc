@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:28 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/13 10:27:53 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/14 17:52:03 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "inc/server.hpp"
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 
 bool     check_port(char *num)
@@ -31,24 +32,20 @@ int main(int ac, char **av)
 	Server server;
 
 	// signal(SIGINT, server.signal_received);
-	if (ac != 3 || !av[1] || !av[2])
+	if (ac != 3 || !av[1] || !av[2] || av[2][0] == '\0')
 	{
 		std::cerr << "Usage: ./ircserv <port> <password>" << std::endl;
 		return (1);
 	}
 	// get port from input
+	std::string password = av[2];
 	int port = atoi(av[1]);
 	//get password from input
-	std::string password = av[2];
-	// check if the password is space
-	if (password == " ")
-	{
-		std::cerr << "Error: Password cannot be empty" << std::endl;
-		return (1);
-	}
 	try
 	{
-		if (!check_port(av[1]) || port < 1024 || port > 65535)
+		if (strlen(av[1]) > 5)
+			throw std::runtime_error("Invalid port number");
+		if (!check_port(av[1])  || port < 1024 || port > 65535)
 			throw std::runtime_error("Invalid port number");
 	}
 	catch(const std::exception& e)

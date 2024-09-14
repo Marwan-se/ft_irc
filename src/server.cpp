@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/14 16:32:06 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/14 17:48:13 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <iterator>
+#include <ostream>
 #include <string>
 #include <sys/poll.h>
 #include <sys/signal.h>
@@ -66,6 +67,7 @@ void	Server::init_Socket(int domain, int type, int protocol, int port)
 	Server_addr.sin_addr.s_addr = INADDR_ANY;
 	Socket_fd = socket(domain, type, protocol);
 
+	std::cout << "---------- " << port << std::endl;
 	if (Socket_fd < 0)
 		throw (std::runtime_error("Error: socket failed"));
 	int opt = 1;
@@ -79,7 +81,9 @@ void	Server::init_Socket(int domain, int type, int protocol, int port)
 		close(Socket_fd);
 		throw (std::runtime_error("Error: fcntl failed"));
 	}
-	if (bind(Socket_fd, (struct sockaddr *)&Server_addr, sizeof(Server_addr)) < 0)
+	int aa = bind(Socket_fd, (struct sockaddr *)&Server_addr, sizeof(Server_addr));
+	std::cout << "--------- " << aa << std::endl;
+	if (aa < 0)
 	{
 		close(Socket_fd);
 		throw (std::runtime_error("Error: bind failed"));
@@ -171,12 +175,13 @@ void	Server::Server_connection(int port, std::string password)
 	new_poll.revents = 0;
 	fdes.push_back(new_poll);
 
-	// int timeout = -1;
+
 	std::cout << "Server <" << Socket_fd << "> connected" << std::endl;
 	std::cout << "Waiting to connect clients..." << std::endl;
+	std::cout << "-----------> " << password << std::endl;
 	while (Server::signal_received_flag == false)
 	{
-		if ((poll(&fdes[0], fdes.size(), 0) < 0) && (Server::signal_received_flag == false))
+		if ((poll(&fdes[0], fdes.size(), -1) < 0) && (Server::signal_received_flag == false))
 			throw (std::runtime_error("Error: poll failed"));
 		for (size_t i = 0; i < fdes.size(); i++)
 		{
