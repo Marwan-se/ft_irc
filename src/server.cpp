@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/13 17:06:30 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/15 13:04:31 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <iterator>
+#include <ostream>
 #include <string>
 #include <sys/poll.h>
 #include <sys/signal.h>
@@ -70,13 +71,26 @@ void	Server::init_Socket(int domain, int type, int protocol, int port)
 		throw (std::runtime_error("Error: socket failed"));
 	int opt = 1;
 	if (setsockopt(Socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+	{
+		close(Socket_fd);
 		throw (std::runtime_error("Error: setsockopt failed"));
+	}
 	if (fcntl(Socket_fd, F_SETFL, O_NONBLOCK) < 0)
+	{
+		close(Socket_fd);
 		throw (std::runtime_error("Error: fcntl failed"));
-	if (bind(Socket_fd, (struct sockaddr *)&Server_addr, sizeof(Server_addr)) < 0)
+	}
+	int aa = bind(Socket_fd, (struct sockaddr *)&Server_addr, sizeof(Server_addr));
+	if (aa < 0)
+	{
+		close(Socket_fd);
 		throw (std::runtime_error("Error: bind failed"));
+	}
 	if (listen(Socket_fd, SOMAXCONN) < 0)
+	{
+		close(Socket_fd);
 		throw (std::runtime_error("Error: listen failed"));
+	}
 }
 
 void trimString(std::string &str)
@@ -90,20 +104,21 @@ void trimString(std::string &str)
 
 bool empty_line(std::string s)
 {
-	for (size_t l = 0;  l < s.size() - 2; l++) 
+	for (size_t l = 0;  l < s.size(); l++) 
 	{
-		if (s[l] != ' ' && s[l] != '\t')
+		if (s[l] != ' ' && s[l] != '\t' && s[l] != '\n')
 			return false;
 	}
 	return true;
 }
 
+
 void	Server::receive_data(int fd, std::string password)
 {
 	Client client = client_info[fd];
-	char buffer[512];
+	char buffer[600];
 	memset(buffer, 0, sizeof(buffer));
-	ssize_t	data = recv(fd, buffer, sizeof(buffer) -1, 0);
+	ssize_t	data = recv(fd, buffer, sizeof(buffer), 0);
 	if (data <= 0)
 	{
 		std::cout << "Client <" << fd << "> disconnected" << std::endl;
@@ -121,18 +136,24 @@ void	Server::receive_data(int fd, std::string password)
 		ctrl_d.erase(fd);
 		close(fd);
 	}
+	else if (data > 512)
+	{
+		if (send(fd, ERR_INPUTTOOLONG(client.get_hostname(), client.getClient_nick()).c_str(), ERR_INPUTTOOLONG(client.get_hostname(), client.getClient_nick()).size(), 0) < 0)
+			std::cout << "Error: send failed" << std::endl;
+		return;
+	}
 	else
 	{
 		std::stringstream line(buffer);
 		if (line.str().find("\n") != std::string::npos)
 		{
 			ctrl_d[fd] += line.str();
-			if (ctrl_d[fd].size() == 1 || empty_line(ctrl_d[fd]))
+			if (ctrl_d[fd][0] == '\n' || empty_line(ctrl_d[fd]))
 			{
 				ctrl_d[fd].clear();
 				return;
 			}
-			handle_auth(fd, password, ctrl_d[fd], client_info, client);
+			handle_auth(fd, password, client);
 			if (client_info[fd].get_authenticated() == true)
 				parsingMsg(ctrl_d[fd], client);
 			ctrl_d[fd].clear();
@@ -152,12 +173,12 @@ void	Server::Server_connection(int port, std::string password)
 	new_poll.revents = 0;
 	fdes.push_back(new_poll);
 
-	int timeout = -1;
+
 	std::cout << "Server <" << Socket_fd << "> connected" << std::endl;
 	std::cout << "Waiting to connect clients..." << std::endl;
 	while (Server::signal_received_flag == false)
 	{
-		if ((poll(fdes.data(), fdes.size(), timeout) < 0) && (Server::signal_received_flag == false))
+		if ((poll(&fdes[0], fdes.size(), -1) < 0) && (Server::signal_received_flag == false))
 			throw (std::runtime_error("Error: poll failed"));
 		for (size_t i = 0; i < fdes.size(); i++)
 		{
@@ -183,6 +204,7 @@ void	Server::Server_connection(int port, std::string password)
 					ctrl_d.insert(std::pair<int, std::string>(incoming_fd, ""));
 					std::cout << "Client <" <<  incoming_fd << "> connected" << std::endl;
 					client_info[incoming_fd].set_hostname();
+					break ;
 				}
 				else
 					receive_data(fdes[i].fd, password);

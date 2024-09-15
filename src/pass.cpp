@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pass.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/13 08:02:48 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/13 10:20:48 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/14 21:56:04 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,6 @@ void	handle_pass_command(int fd, std::string password, std::string message, std:
 	if (message[0] == ':')
 	{
 		message += rest_of_message;
-		trimString(message);
 		message_collon = message.substr(1, message.length() - 1);
 		if (message_collon.empty())
 		{

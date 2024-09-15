@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   user.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/13 08:02:47 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/13 10:26:54 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/14 16:11:21 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,62 @@
 
 
 //USER 
+
+bool	parse_user(std::string message, Client &client, std::string command, int fd, std::map<int , Client> &client_info)
+{
+	std::string full_message = message;
+	std::stringstream allparam(full_message);
+	std::string param;
+	int j = 0;
+	
+	while (j <= 3)
+	{
+		allparam >> param;
+		if (param.empty() || param[0] == '\0') {
+			break;
+		}
+		j++;
+		int i = 0;
+		while (param[i] != '\0' && j <= 3)
+		{
+			if (param[i] == ':')
+			{
+				if (client.getClient_nick().empty())
+				{
+					if (send(fd, ERR_NEEDMOREPARAMS(client.get_hostname(), "*", command).c_str(), \
+						ERR_NEEDMOREPARAMS(client.get_hostname(), "*", command).length(), 0) < 0)
+						std::cerr << "Error: send failed" << std::endl;
+					return false;
+				}
+				if (send(fd, ERR_NEEDMOREPARAMS(client.get_hostname(), client.getClient_nick(), command).c_str(), \
+					ERR_NEEDMOREPARAMS(client.get_hostname(), client.getClient_nick(), command).length(), 0) < 0)
+					std::cerr << "Error: send failed" << std::endl;
+				return false;
+			}
+			i++;
+		}
+		if (j == 1)
+			client_info[fd].setClient_user(param);
+		param.clear();
+	}
+	if (j <= 3)
+	{
+		if (client.getClient_nick().empty())
+		{
+			if (send(fd, ERR_NEEDMOREPARAMS(client.get_hostname(), "*", command).c_str(), \
+				ERR_NEEDMOREPARAMS(client.get_hostname(), "*", command).length(), 0) < 0)
+				std::cerr << "Error: send failed" << std::endl;
+			return false;
+		}
+		if (send(fd, ERR_NEEDMOREPARAMS(client.get_hostname(), client.getClient_nick(), command).c_str(), \
+			ERR_NEEDMOREPARAMS(client.get_hostname(), client.getClient_nick(), command).length(), 0) < 0)
+			std::cerr << "Error: send failed" << std::endl;
+		return false;
+	}
+	return true;
+}
+
+
 void	handle_user_command(int fd, std::string message, std::string rest_of_message, std::map<int , Client> &client_info, Client &client, std::string command)
 {
 	if (client.get_authenticated() == true)
@@ -44,27 +100,7 @@ void	handle_user_command(int fd, std::string message, std::string rest_of_messag
 			std::cerr << "Error: send failed" << std::endl;
 		return;
 	}
-	for (size_t i = 0; i < 4; i++)
-	{
-		if (for_split >> temp)
-			user_info.push_back(temp);
-		else
-			break;
-	}
-	if (user_info.size() < 4 || user_info[0][0] == ':')
-	{
-		if (client.getClient_nick().empty())
-		{
-			if (send(fd, ERR_NEEDMOREPARAMS(client.get_hostname(), star, command).c_str(), \
-				ERR_NEEDMOREPARAMS(client.get_hostname(), star, command).length(), 0) < 0)
-				std::cerr << "Error: send failed" << std::endl;
-			return;
-		}		
-		if (send(fd, ERR_NEEDMOREPARAMS(client.get_hostname(),client.getClient_nick(), command).c_str(), \
-			ERR_NEEDMOREPARAMS(client.get_hostname(),client.getClient_nick(), command).length(), 0) < 0)
-			std::cerr << "Error: send failed" << std::endl;
+	if (!parse_user(message, client, command, fd, client_info))
 		return;
-	}
-	client_info[fd].setClient_user(user_info[0]);
 	client_info[fd].user_received = true;
 }

@@ -6,7 +6,7 @@
 /*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 17:54:50 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/14 11:43:38 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/15 12:50:52 by yrrhaibi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ void Server::join(Message &comm , Client &client)
 	ss << comm.getMsg();
 	while (std::getline(ss, tmp, ',')) 
 		ch_key.push_back(tmp);
+	if (!ch_key.empty() && ch_key[0][0] == ':')
+		ch_key[0].erase(0,1);
 	ss.clear();
 	for (size_t l = 0; l < ch_name.size(); l++) 
 	{
@@ -62,7 +64,7 @@ void Server::join(Message &comm , Client &client)
 					Channel t_ch(tmpn);
 					t_ch.addMember(client);
 					t_ch.getMembers()[0].setisOp(true);
-					this->channels.insert(std::pair<std::string, Channel>(tmpn,t_ch));
+					channels[tmpn] = t_ch;
 					rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "JOIN " + tmpn + "\r\n";
 					send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 					rpl = RPL_NAMREPLY(client.get_hostname(), client.getClient_nick(), tmpn, join_members(channels[tmpn].getMembers()));
@@ -72,20 +74,24 @@ void Server::join(Message &comm , Client &client)
 				}
 				else 
 				{
+					
 					if (check_membre(it->second.getMembers(), client.getClient_nick()))
 						continue;
 					if (is_invite(it->second.getInvited(), client.getClient_nick()))
 					{
 						it->second.addMember(client);
-						if (it->second.getTopicRES())
-						{
-							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, it->second.getTopic());
-							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-							// rpl = RPL_TOPICWHOTIME(client.get_hostname(), client.getClient_nick(), tmpn, )
-							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-						}
 						rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "JOIN " + tmpn + "\r\n";
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+						if (!it->second.getTopic().empty())
+						{
+							std::stringstream s1;
+							s1 << channels[ch_name[l]].getTime();
+							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, it->second.getTopic());
+							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+							rpl = RPL_TOPICWHOTIME(client.get_hostname(), client.getClient_nick(), ch_name[l], channels[ch_name[l]].getTopicSetter(), s1.str());
+							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+						}
+						msg_chann(client, "", tmpn, tmpn, "JOIN");
 						rpl = RPL_NAMREPLY(client.get_hostname(), client.getClient_nick(), tmpn, join_members(channels[tmpn].getMembers()));
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 						rpl = RPL_ENDOFNAMES(client.get_hostname(), client.getClient_nick(), tmpn);
@@ -99,15 +105,17 @@ void Server::join(Message &comm , Client &client)
 					else if (it->second.getKeyRES() == false && it->second.getInviteOnly() == false)
 					{
 						it->second.addMember(client);
-						if (it->second.getTopicRES())
-						{
-							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, it->second.getTopic());
-							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-							// rpl = RPL_TOPICWHOTIME(client.get_hostname(), client.getClient_nick(), tmpn, )
-							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-						}
 						rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "JOIN " + tmpn + "\r\n";
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+						if (!it->second.getTopic().empty())
+						{
+							std::stringstream s1;
+							s1 << channels[ch_name[l]].getTime();
+							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, it->second.getTopic());
+							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+							rpl = RPL_TOPICWHOTIME(client.get_hostname(), client.getClient_nick(), ch_name[l], channels[ch_name[l]].getTopicSetter(), s1.str());
+							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+						}
 						msg_chann(client, "", tmpn, tmpn, "JOIN");
 						rpl = RPL_NAMREPLY(client.get_hostname(), client.getClient_nick(), tmpn, join_members(channels[tmpn].getMembers()));
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
@@ -128,15 +136,17 @@ void Server::join(Message &comm , Client &client)
 					else
 					{
 						it->second.addMember(client);
-						if (it->second.getTopicRES())
-						{
-							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, it->second.getTopic());
-							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-							// rpl = RPL_TOPICWHOTIME(client.get_hostname(), client.getClient_nick(), tmpn, )
-							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-						}
 						rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "JOIN " + tmpn + "\r\n";
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+						if (!it->second.getTopic().empty())
+						{
+							std::stringstream s1;
+							s1 << channels[ch_name[l]].getTime();
+							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, it->second.getTopic());
+							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+							rpl = RPL_TOPICWHOTIME(client.get_hostname(), client.getClient_nick(), ch_name[l], channels[ch_name[l]].getTopicSetter(), s1.str());
+							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+						}
 						msg_chann(client, "", tmpn,tmpn, "JOIN");
 						rpl = RPL_NAMREPLY(client.get_hostname(), client.getClient_nick(), tmpn, join_members(channels[tmpn].getMembers()));
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
@@ -244,9 +254,15 @@ void Server::privmsg(Message &comm , Client &client)
 	std::map<std::string ,Channel>::iterator it;
 	bool is_channel;
 
-	if (comm.getTarget().empty())
+	if (comm.getTarget().empty() || comm.getMsg().empty())
 	{
 		rpl = ERR_NEEDMOREPARAMS(client.get_hostname(), client.getClient_nick(), "PRIVMSG");
+		send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+		return;
+	}
+	if (comm.getComm().empty())
+	{
+		rpl = ERR_NOTEXTTOSEND(client.get_hostname(), client.getClient_nick());
 		send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 		return;
 	}
@@ -283,7 +299,7 @@ void Server::privmsg(Message &comm , Client &client)
 			send(client_exist(client_name[l]).getClient_fd(), rpl.c_str(), rpl.size(), 0);
 		}
 		else 
-			msg_chann(client, " " + msg[0], it->second.getName(),it->second.getName(), "PRIVMSG");
+			msg_chann(client," " + msg[0], it->second.getName(),it->second.getName(), "PRIVMSG");
 	}
 	
 }

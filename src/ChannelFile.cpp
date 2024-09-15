@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ChannelFile.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 10:41:37 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/13 09:59:37 by msekhsou         ###   ########.fr       */
+/*   Updated: 2024/09/14 16:02:36 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void Channel::setLimNum(size_t l)
 
 void Channel::setLimit(bool l)
 {
-    this->lim = l;
+    this->l = l;
 }
 
 bool Channel::getTopicRES()
@@ -112,6 +112,16 @@ void Channel::setKeyRES(bool x)
     this->k = x;
 }
 
+std::time_t Channel::getTime()
+{
+    return this->topicTime;
+}
+
+void Channel::setTime(time_t x)
+{
+    this->topicTime = x;
+}
+
 void Channel::setTopic(std::string topic)
 {
     this->topic = topic;
@@ -121,6 +131,17 @@ void Channel::addMember(Client &member)
 {
     this->members.push_back(member);
 }
+
+std::string Channel::getTopicSetter()
+{
+    return topicSetter;
+}
+
+void Channel::setTopicSetter(std::string s)
+{
+    this->topicSetter = s;
+}
+
 
 
 void Channel::removeMember(Client &member)
