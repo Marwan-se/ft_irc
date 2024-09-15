@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 16:49:06 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/14 16:39:27 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/14 23:38:16 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,10 +75,11 @@ std::string comm_gen(std::string comm)
 	return r;
 }
 
-bool check_membre(std::vector<Client> vec, std::string name)
+bool check_membre(std::vector<Client> &vec, std::string name)
 {
 
 	for (size_t l = 0; l < vec.size(); l++) {
+
 		if (vec[l].getClient_nick() == name)
 			return true;
 	}

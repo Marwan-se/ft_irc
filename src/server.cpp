@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/14 17:48:13 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/14 22:54:03 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,6 @@ void	Server::init_Socket(int domain, int type, int protocol, int port)
 	Server_addr.sin_addr.s_addr = INADDR_ANY;
 	Socket_fd = socket(domain, type, protocol);
 
-	std::cout << "---------- " << port << std::endl;
 	if (Socket_fd < 0)
 		throw (std::runtime_error("Error: socket failed"));
 	int opt = 1;
@@ -82,7 +81,6 @@ void	Server::init_Socket(int domain, int type, int protocol, int port)
 		throw (std::runtime_error("Error: fcntl failed"));
 	}
 	int aa = bind(Socket_fd, (struct sockaddr *)&Server_addr, sizeof(Server_addr));
-	std::cout << "--------- " << aa << std::endl;
 	if (aa < 0)
 	{
 		close(Socket_fd);
@@ -118,7 +116,7 @@ bool empty_line(std::string s)
 void	Server::receive_data(int fd, std::string password)
 {
 	Client client = client_info[fd];
-	char buffer[512];
+	char buffer[600];
 	memset(buffer, 0, sizeof(buffer));
 	ssize_t	data = recv(fd, buffer, sizeof(buffer), 0);
 	if (data <= 0)
@@ -155,7 +153,7 @@ void	Server::receive_data(int fd, std::string password)
 				ctrl_d[fd].clear();
 				return;
 			}
-			handle_auth(fd, password, ctrl_d[fd], client_info, client);
+			handle_auth(fd, password, client);
 			if (client_info[fd].get_authenticated() == true)
 				parsingMsg(ctrl_d[fd], client);
 			ctrl_d[fd].clear();
@@ -178,7 +176,6 @@ void	Server::Server_connection(int port, std::string password)
 
 	std::cout << "Server <" << Socket_fd << "> connected" << std::endl;
 	std::cout << "Waiting to connect clients..." << std::endl;
-	std::cout << "-----------> " << password << std::endl;
 	while (Server::signal_received_flag == false)
 	{
 		if ((poll(&fdes[0], fdes.size(), -1) < 0) && (Server::signal_received_flag == false))

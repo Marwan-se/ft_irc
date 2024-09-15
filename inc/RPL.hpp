@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/08 21:56:27 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/14 16:00:54 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/14 23:48:20 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,9 +61,11 @@
 
 # define ERR_CANNOTSENDTOCHAN(hostname,client,channel) (":" + hostname + " 404 " + client + " " + channel + " :Cannot send to channel\r\n")
 
+# define ERR_NOTEXTTOSEND(hostname,client) (":" + hostname + " 404 " + client + " :No text to send\r\n")
+
 //********INVITE*********//
 
-# define ERR_USERONCHANNEL(client, nick, channel) (":irc.1337.ma 443 " + client + " " + nick + channel + " :Is already on channel\r\n")
+# define ERR_USERONCHANNEL(client, nick, channel) (":irc.1337.ma 443 " + client + " " + nick + " " + channel + " :Is already on channel\r\n")
 
 //********MODE*********//
 

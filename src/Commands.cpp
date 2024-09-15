@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 17:54:50 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/14 16:05:13 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/14 23:56:44 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ void Server::join(Message &comm , Client &client)
 				}
 				else 
 				{
+					
 					if (check_membre(it->second.getMembers(), client.getClient_nick()))
 						continue;
 					if (is_invite(it->second.getInvited(), client.getClient_nick()))
@@ -79,7 +80,7 @@ void Server::join(Message &comm , Client &client)
 						it->second.addMember(client);
 						rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "JOIN " + tmpn + "\r\n";
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-						if (it->second.getTopicRES())
+						if (!it->second.getTopic().empty())
 						{
 							std::stringstream s1;
 							s1 << channels[ch_name[l]].getTime();
@@ -104,7 +105,7 @@ void Server::join(Message &comm , Client &client)
 						it->second.addMember(client);
 						rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "JOIN " + tmpn + "\r\n";
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-						if (it->second.getTopicRES())
+						if (!it->second.getTopic().empty())
 						{
 							std::stringstream s1;
 							s1 << channels[ch_name[l]].getTime();
@@ -135,7 +136,7 @@ void Server::join(Message &comm , Client &client)
 						it->second.addMember(client);
 						rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "JOIN " + tmpn + "\r\n";
 						send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-						if (it->second.getTopicRES())
+						if (!it->second.getTopic().empty())
 						{
 							std::stringstream s1;
 							s1 << channels[ch_name[l]].getTime();
@@ -251,9 +252,15 @@ void Server::privmsg(Message &comm , Client &client)
 	std::map<std::string ,Channel>::iterator it;
 	bool is_channel;
 
-	if (comm.getTarget().empty())
+	if (comm.getTarget().empty() || comm.getMsg().empty())
 	{
 		rpl = ERR_NEEDMOREPARAMS(client.get_hostname(), client.getClient_nick(), "PRIVMSG");
+		send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+		return;
+	}
+	if (comm.getComm().empty())
+	{
+		rpl = ERR_NOTEXTTOSEND(client.get_hostname(), client.getClient_nick());
 		send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 		return;
 	}

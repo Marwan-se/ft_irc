@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 14:17:11 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/14 16:07:08 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/15 01:11:15 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <sstream>
 #include <iostream>
 #include <sys/socket.h>
+#include <system_error>
 #include <vector>
 #include "../inc/ChannelFile.hpp"
 #include "../inc/RPL.hpp"
@@ -78,7 +79,6 @@ void Message::setComm(std::string comm)
 
 bool isMember(Channel chn, std::string client)
 {
-	std::cout << chn.getName() << "--" << client << std::endl;
 	for (std::vector<Client>::iterator it = chn.getMembers().begin(); it != chn.getMembers().end(); it++)
 	{
 		if (client == it->getClient_nick())
@@ -109,6 +109,12 @@ void Server::handlingTOPIC(Message message, std::map<std::string, Channel> &chan
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
 			return ;
 		}
+		if (!channels[message.getTarget()].getClientMember(client.getClient_nick()).getisOp() && channels[message.getTarget()].getTopicRES())
+		{
+			std::string m = ERR_CHANOPRIVSNEEDED(client.get_hostname(), client.getClient_nick(), channels[message.getTarget()].getName());
+			send(client.getClient_fd(), m.c_str(), m.length(),0);
+			return ;
+		}
 		if (message.getMsg().empty() && channels[message.getTarget()].getTopic().empty())
 		{
 			std::string m = RPL_NOTOPIC(client.get_hostname(), client.getClient_nick(), channels[message.getTarget()].getName());
@@ -121,18 +127,17 @@ void Server::handlingTOPIC(Message message, std::map<std::string, Channel> &chan
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
 			return ;
 		}
-		if (!channels[message.getTarget()].getClientMember(client.getClient_nick()).getisOp())
-		{
-			std::string m = ERR_CHANOPRIVSNEEDED(client.get_hostname(), client.getClient_nick(), channels[message.getTarget()].getName());
-			send(client.getClient_fd(), m.c_str(), m.length(),0);
-			return ;
-		}
-		if (channels[message.getTarget()].getTopicRES())
+		if (channels[message.getTarget()].getClientMember(client.getClient_nick()).getisOp() || !channels[message.getTarget()].getTopicRES())
 		{
 			channels[message.getTarget()].setTime(std::time(NULL));
 			std::stringstream t;
 			t << channels[message.getTarget()].getTime();
-			channels[message.getTarget()].setTopic(message.getMsg());
+			if (message.getMsg().at(0) == ':'){
+				channels[message.getTarget()].setTopic(message.getMsg().substr(1));
+			}
+			else {
+				channels[message.getTarget()].setTopic(message.getMsg());
+			}
 			channels[message.getTarget()].setTopicSetter(client.getClient_nick());
 			std::string m = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), channels[message.getTarget()].getName(), channels[message.getTarget()].getTopic());
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
@@ -391,7 +396,7 @@ void Server::parsingMsg(std::string msg, Client &client)
 	else if (cmdUpper == "PRIVMSG"){
 		message.setCommand("PRIVMSG");
 	}
-	else if (cmdUpper == "NICK" || cmdUpper == "PASS" || cmdUpper == "USER")
+	else if (cmdUpper == "NICK" || cmdUpper == "PASS" || cmdUpper == "USER" || cmdUpper == "PONG")
 	{
 		return;
 	}

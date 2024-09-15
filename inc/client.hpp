@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yrrhaibi <yrrhaibi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/08 13:16:09 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/13 13:32:35 by yrrhaibi         ###   ########.fr       */
+/*   Updated: 2024/09/14 22:48:34 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,5 +74,3 @@ void	bad_pass(int fd, std::map<int , Client> &client_info, Client &client, std::
 void	nick_empty(int fd, Client &client, std::string command);
 void	handle_pass_command(int fd, std::string password, std::string message, std::string rest_of_message, std::map<int , Client> &client_info, Client &client, std::string command);
 void	handle_user_command(int fd, std::string message, std::string rest_of_message, std::map<int , Client> &client_info, Client &client, std::string command);
-void	handle_nick_command(int fd, std::string message, std::string rest_of_message, std::map<int , Client> &client_info, Client &client, std::string command);
-void	handle_auth(int fd, std::string password, std::string ctrl_d, std::map<int , Client> &client_info, Client &client);

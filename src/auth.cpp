@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/10 18:03:02 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/14 15:56:07 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/14 22:52:58 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,9 @@ void	welcome_theClient(int fd, Client &client)
 
 }
 
-void	handle_auth(int fd, std::string password, std::string ctrl_d, std::map<int , Client> &client_info, Client &client)
+void	Server::handle_auth(int fd, std::string password, Client &client)
 {
-	std::stringstream ctrl_d_stream(ctrl_d);
+	std::stringstream ctrl_d_stream(ctrl_d[fd]);
 	std::string command;
 	std::string message;
 	std::string rest_of_message;
@@ -59,7 +59,7 @@ void	handle_auth(int fd, std::string password, std::string ctrl_d, std::map<int 
 	else if (command == "USER")
 		handle_user_command(fd, message, rest_of_message, client_info, client, command);
 	else if (command == "NICK")
-		handle_nick_command(fd, message, rest_of_message, client_info, client, command);
+		handle_nick_command(fd, message, rest_of_message, client, command);
 	else if ( client.get_authenticated() == false)
 	{
 		if (client.getClient_nick().empty())
