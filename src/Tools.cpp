@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 16:49:06 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/15 18:12:11 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/15 20:17:56 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,7 +135,8 @@ void Server::remove_from_ch(Client &client, std::map<std::string, Channel> &ch, 
 				if (flag == 0)
 				{
 					rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "PART" + " " + it->second.getName() + "\r\n";
-					send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
+					if (send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0) < 0)
+						return ;
 				}
 			}
 		}
@@ -161,7 +162,8 @@ void Server::msg_chann(Client client, std::string msg, std::string ch_name,std::
 		for (size_t l = 0; l < members.size(); l++)
 		{
 			if (client.getClient_nick() != members[l].getClient_nick())
-				send(members[l].getClient_fd(), msg.c_str(), msg.size(), 0);
+				if (send(members[l].getClient_fd(), msg.c_str(), msg.size(), 0) < 0)
+					return ;
 		}
 	}
 	else
@@ -170,7 +172,8 @@ void Server::msg_chann(Client client, std::string msg, std::string ch_name,std::
 		{
 			rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + command + " " + target  + msg + "\r\n";
 			if (client.getClient_nick() != members[l].getClient_nick())
-				send(members[l].getClient_fd(), rpl.c_str(), rpl.size(), 0);
+				if (send(members[l].getClient_fd(), rpl.c_str(), rpl.size(), 0) < 0)
+					return ;
 		}
 	}
 }
@@ -190,8 +193,10 @@ void Server::broadcastToChan(Client &client, Channel &chann, std::string tar, st
 		{
 			if (client.getClient_nick() == it->getClient_nick())
 				continue;
-			send(it->getClient_fd(), rp1.c_str(), rp1.length(), 0);
-			send(it->getClient_fd(), rp.c_str(), rp.length(), 0);
+			if (send(it->getClient_fd(), rp1.c_str(), rp1.length(), 0) < 0)
+				return ;
+			if (send(it->getClient_fd(), rp.c_str(), rp.length(), 0) < 0)
+				return ;
 		}
 	}
 	else
@@ -201,7 +206,8 @@ void Server::broadcastToChan(Client &client, Channel &chann, std::string tar, st
 			rp = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), chann.getName(), t, tar);
 			if (client.getClient_nick() == it->getClient_nick())
 				continue;
-			send(it->getClient_fd(), rp.c_str(), rp.length(), 0);
+			if (send(it->getClient_fd(), rp.c_str(), rp.length(), 0) < 0)
+				return ;
 		}
 
 	}

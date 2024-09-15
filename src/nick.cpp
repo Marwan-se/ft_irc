@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/13 08:02:46 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/15 18:06:19 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/15 20:18:49 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,8 @@ void	Server::handle_nick_command(int fd, std::string message, std::string rest_o
 			std::string rpl;
 			chan_nick(client_info[fd], new_nick);
 			rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " NICK " + new_nick + "\r\n";
-			send(client_info[fd].getClient_fd(), rpl.c_str(), rpl.size(), 0);
+			if (send(client_info[fd].getClient_fd(), rpl.c_str(), rpl.size(), 0) < 0)
+				return ;
 		}
 		client_info[fd].setClient_nick(new_nick);
 		client_info[fd].nick_received = true;
@@ -138,7 +139,8 @@ void	Server::handle_nick_command(int fd, std::string message, std::string rest_o
 			std::string rpl;
 			chan_nick(client_info[fd], message);
 			rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " NICK " + message + "\r\n";
-			send(client_info[fd].getClient_fd(), rpl.c_str(), rpl.size(), 0);
+			if (send(client_info[fd].getClient_fd(), rpl.c_str(), rpl.size(), 0) < 0)
+				return ;
 		}
 		client_info[fd].setClient_nick(message);
 		client_info[fd].nick_received = true;
