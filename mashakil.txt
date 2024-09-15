@@ -6,7 +6,6 @@ join #q :papa oaoa --> skip the ':'
 MODE :
 ----------------------------------------
 
-mode #a +o-t+l-k uaua salkfjlaskf
 :aaaa!~a@127.0.0.1 MODE #a +o :
 
 --> mode broadcast to channel clients;

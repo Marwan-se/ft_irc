@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 10:41:37 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/14 16:02:36 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/15 16:38:49 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ Channel::Channel()
     this->l = false;
     this->k = false;
     this->i = false;
-    this->t = false;
+    this->t = true;
 }
 
 Channel::Channel(std::string n)
@@ -27,7 +27,7 @@ Channel::Channel(std::string n)
     this->l = false;
     this->k = false;
     this->i = false;
-    this->t = false;
+    this->t = true;
     this->name = n;
 }
 

@@ -6,24 +6,13 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/13 08:02:46 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/14 23:37:43 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/15 17:20:01 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "../inc/server.hpp"
 #include "../inc/RPL.hpp"
-
-void client_broa(Client client, std::map<std::string , Channel> &channel,std::string target, std::string command)
-{
-	std::string rpl;
-
-	for (std::map<std::string , Channel>::iterator it = channel.begin(); it != channel.end(); it++)
-	{
-		rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + command + " :" + target + "\r\n";
-		// send(it->second.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-	}
-}
 
 void Server::chan_nick(Client &client, std::string new_nick)
 {
@@ -101,7 +90,12 @@ void	Server::handle_nick_command(int fd, std::string message, std::string rest_o
 			return;
 		}
 		if (client_info[fd].get_authenticated() && client_info[fd].getClient_nick() != new_nick)
+		{
+			std::string rpl;
 			chan_nick(client_info[fd], new_nick);
+			rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " NICK " + new_nick + "\r\n";
+			send(client_info[fd].getClient_fd(), rpl.c_str(), rpl.size(), 0);
+		}
 		client_info[fd].setClient_nick(new_nick);
 		client_info[fd].nick_received = true;
 	}
@@ -140,7 +134,12 @@ void	Server::handle_nick_command(int fd, std::string message, std::string rest_o
 			}
 		}
 		if (client_info[fd].get_authenticated() && client_info[fd].getClient_nick() != message)
+		{
+			std::string rpl;
 			chan_nick(client_info[fd], message);
+			rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " NICK " + message + "\r\n";
+			send(client_info[fd].getClient_fd(), rpl.c_str(), rpl.size(), 0);
+		}
 		client_info[fd].setClient_nick(message);
 		client_info[fd].nick_received = true;
 	}

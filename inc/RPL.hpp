@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/08 21:56:27 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/14 23:48:20 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/15 16:50:07 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 //********TOPIC*********//
 
-# define RPL_TOPIC(hostname,client,channel,topic) (":" + hostname + " 332 " + client + " " + channel + " :" + topic + "\r\n")
+# define RPL_TOPIC(hostname,client,channel,topic) (":" + hostname + " 332 " + client + " " + channel + " " + topic + "\r\n")
 # define RPL_TOPICWHOTIME(hostname,client,channel,nick,time) (":" + hostname + " 333 " + client + " " + channel + " " + nick + " " + time + "\r\n")
 # define RPL_NOTOPIC(hostname, client, channel) (":" + hostname + " 332 " + client + " " + channel + " :No topic is set\r\n")
 
@@ -70,7 +70,8 @@
 //********MODE*********//
 
 #define ERR_UNKNOWNMODE(client, modechar) (":irc.1337.ma 472 " + client +  modechar + " :is unknown mode char to me\r\n")
-#define RPL_CHANNELMODEIS(client, user, ipadd, channel, mod, param) (":" + client + "!~" + user + "@" + ipadd + " MODE " + channel + " " + mod + " :" + param + "\r\n") 
+#define RPL_CHANNELMODEIS(client, user, ipadd, channel, mod, param) (":" + client + "!~" + user + "@" + ipadd + " MODE " + channel + " " + mod + " " + param + "\r\n")
+#define ERR_INVALIDMODEPARAM(client, user, ipadd, channel, mod, param) (":" + client + "!~" + user + "@" + ipadd + " MODE " + channel + " " + mod + " " + param + "\r\n")
 
 
 

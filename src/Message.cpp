@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 14:17:11 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/15 01:11:15 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/15 17:10:21 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 #include <sstream>
 #include <iostream>
 #include <sys/socket.h>
-#include <system_error>
 #include <vector>
 #include "../inc/ChannelFile.hpp"
 #include "../inc/RPL.hpp"
@@ -123,7 +122,7 @@ void Server::handlingTOPIC(Message message, std::map<std::string, Channel> &chan
 		}
 		if (!channels[message.getTarget()].getTopic().empty() && message.getMsg().empty())
 		{
-			std::string m = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), channels[message.getTarget()].getName(), channels[message.getTarget()].getTopic());
+			std::string m = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), channels[message.getTarget()].getName(), ":" + channels[message.getTarget()].getTopic());
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
 			return ;
 		}
@@ -139,7 +138,7 @@ void Server::handlingTOPIC(Message message, std::map<std::string, Channel> &chan
 				channels[message.getTarget()].setTopic(message.getMsg());
 			}
 			channels[message.getTarget()].setTopicSetter(client.getClient_nick());
-			std::string m = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), channels[message.getTarget()].getName(), channels[message.getTarget()].getTopic());
+			std::string m = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), channels[message.getTarget()].getName(), ":" + channels[message.getTarget()].getTopic());
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
 			broadcastToChan(client, channels[message.getTarget()], "", t.str(), 1);
 			return ;
@@ -204,12 +203,40 @@ void Server::handlingINV(Message message, std::map<std::string, Channel> &channe
 	}
 }
 
+std::string getmods(Channel &channel)
+{
+	std::string m;
+	m += '+';
+
+	if (channel.getTopicRES())
+		m += 't';
+	if (channel.getInviteOnly())
+		m += 'i';
+	if (channel.getKeyRES())
+		m += 'k';
+	if (channel.getLimit())
+		m += 'l';
+
+	if (m == "+")
+		return "";
+	return m;
+}
+
+bool isDigit(const std::string& str) {
+    for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
+        if (!isdigit(*it)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void    Server::handlingMODE(Message message, std::map<std::string, Channel> &channels, Client &client)
 {
 
 	if (message.getCommand() == "MODE")
 	{
-		if (message.getTarget().empty() || message.getMsg().empty())
+		if (message.getTarget().empty())
 		{
 			std::string m = ERR_NEEDMOREPARAMS(client.get_hostname(), client.getClient_nick(), message.getCommand());
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
@@ -220,6 +247,14 @@ void    Server::handlingMODE(Message message, std::map<std::string, Channel> &ch
 			std::string m = ERR_NOSUCHCHANNEL(client.get_hostname(), client.getClient_nick(), message.getTarget());
 			send(client.getClient_fd(), m.c_str(), m.length(),0);
 			return ;
+		}
+		if (message.getMsg().empty())
+		{
+			std::string mods = getmods(channels[message.getTarget()]);
+			std::string m =  RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), mods, "");
+			send(client.getClient_fd(), m.c_str(), m.length(),0);
+
+			
 		}
 		else if (!channels[message.getTarget()].getClientMember(client.getClient_nick()).getisOp())
 		{
@@ -233,14 +268,17 @@ void    Server::handlingMODE(Message message, std::map<std::string, Channel> &ch
 				{
 					channels[message.getTarget()].setTopicRES(true);
 
-					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+t", message.getComm());
+					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+t", "");
 					send(client.getClient_fd(), m.c_str(), m.length(),0);
+					broadcastToChan(client, channels[message.getTarget()], "", "+t", 2);
+					return ;
 				}
 				else if (message.getMsg() == "-t")
 				{
 					channels[message.getTarget()].setTopicRES(false);
 					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "-t", "");
 					send(client.getClient_fd(), m.c_str(), m.length(),0);
+					broadcastToChan(client, channels[message.getTarget()], "", "-t", 2);
 					return ;
 				}
 				else if (message.getMsg() == "+i")
@@ -248,6 +286,7 @@ void    Server::handlingMODE(Message message, std::map<std::string, Channel> &ch
 					channels[message.getTarget()].setInviteOnly(true);
 					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+i", "");
 					send(client.getClient_fd(), m.c_str(), m.length(),0);
+					broadcastToChan(client, channels[message.getTarget()], "", "+i", 2);
 					return ;
 				}
 				else if (message.getMsg() == "-i")
@@ -255,19 +294,27 @@ void    Server::handlingMODE(Message message, std::map<std::string, Channel> &ch
 					channels[message.getTarget()].setInviteOnly(false);
 					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "-i", "");
 					send(client.getClient_fd(), m.c_str(), m.length(),0);
+					broadcastToChan(client, channels[message.getTarget()], "", "-i", 2);
 					return ;
 				}
 				else if (message.getMsg() == "+k"){
 					if (message.getComm().empty())
 					{
-						std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+k", channels[message.getTarget()].getkey());
+						std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+k", ":" + channels[message.getTarget()].getkey());
+						send(client.getClient_fd(), m.c_str(), m.length(),0);
+						return ;
+					}
+					if (message.getComm().find(':') != std::string::npos || message.getComm().find(',') != std::string::npos)
+					{
+						std::string m = ERR_INVALIDMODEPARAM(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+k", ":Invalid key sequence!");
 						send(client.getClient_fd(), m.c_str(), m.length(),0);
 						return ;
 					}
 					channels[message.getTarget()].setKeyRES(true);
+					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+k", ":" + message.getComm());
 					channels[message.getTarget()].setKey(message.getComm());
-					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+k", message.getComm());
 					send(client.getClient_fd(), m.c_str(), m.length(),0);
+					broadcastToChan(client, channels[message.getTarget()],channels[message.getTarget()].getkey(), "+k", 2);
 					return ;
 				}
 				else if (message.getMsg() == "-k"){
@@ -275,6 +322,7 @@ void    Server::handlingMODE(Message message, std::map<std::string, Channel> &ch
 					channels[message.getTarget()].setKey("");
 					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "-k", "");
 					send(client.getClient_fd(), m.c_str(), m.length(),0);
+					broadcastToChan(client, channels[message.getTarget()],"", "-k", 2);
 					return ;
 				}
 				else if (message.getMsg() == "+l"){
@@ -285,19 +333,27 @@ void    Server::handlingMODE(Message message, std::map<std::string, Channel> &ch
 						return ;
 					}
 					channels[message.getTarget()].setLimit(true);
+					if (!isDigit(message.getComm()))
+					{
+						std::string m = ERR_INVALIDMODEPARAM(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+l", ":Invalid limit number!");
+						send(client.getClient_fd(), m.c_str(), m.length(),0);
+						return ;
+					}
 					std::stringstream tst(message.getComm());
 					size_t num;
 					tst >> num;
 					channels[message.getTarget()].setLimNum(num);
-					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+l", message.getComm());
+					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+l", ":" + message.getComm());
 					send(client.getClient_fd(), m.c_str(), m.length(),0);
+					broadcastToChan(client, channels[message.getTarget()], message.getComm(), "+l", 2);
 					return ;
 				}
 				else if (message.getMsg() == "-l"){
 					channels[message.getTarget()].setLimit(false);
 					channels[message.getTarget()].setLimNum(0);
-					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "-l", message.getComm());
+					std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "-l", "");
 					send(client.getClient_fd(), m.c_str(), m.length(),0);
+					broadcastToChan(client, channels[message.getTarget()], "", "-l", 2);
 					return ;
 				}
 				else if (message.getMsg() == "+o")
@@ -321,6 +377,8 @@ void    Server::handlingMODE(Message message, std::map<std::string, Channel> &ch
 						channels[message.getTarget()].getClientMember(message.getComm()).setisOp(true);
 						std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+o", "");
 						send(client.getClient_fd(), m.c_str(), m.length(),0);
+						broadcastToChan(client, channels[message.getTarget()], "", "+o", 2);
+
 					}
 				}
 				else if (message.getMsg() == "-o")
@@ -344,6 +402,7 @@ void    Server::handlingMODE(Message message, std::map<std::string, Channel> &ch
 						channels[message.getTarget()].getClientMember(message.getComm()).setisOp(false);
 						std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "-o", "");
 						send(client.getClient_fd(), m.c_str(), m.length(),0);
+						broadcastToChan(client, channels[message.getTarget()], "", "-o", 2);
 						return ;
 					}
 				}

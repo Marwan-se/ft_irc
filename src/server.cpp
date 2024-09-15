@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/14 22:54:03 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/15 16:31:55 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,14 +104,13 @@ void trimString(std::string &str)
 
 bool empty_line(std::string s)
 {
-	for (size_t l = 0;  l < s.size() - 2; l++) 
+	for (size_t l = 0;  l < s.size(); l++) 
 	{
-		if (s[l] != ' ' && s[l] != '\t')
+		if (s[l] != ' ' && s[l] != '\t' && s[l] != '\n')
 			return false;
 	}
 	return true;
 }
-
 
 void	Server::receive_data(int fd, std::string password)
 {
@@ -148,7 +147,7 @@ void	Server::receive_data(int fd, std::string password)
 		if (line.str().find("\n") != std::string::npos)
 		{
 			ctrl_d[fd] += line.str();
-			if (ctrl_d[fd].size() == 1 || empty_line(ctrl_d[fd]))
+			if (ctrl_d[fd][0] == '\n' || empty_line(ctrl_d[fd]))
 			{
 				ctrl_d[fd].clear();
 				return;

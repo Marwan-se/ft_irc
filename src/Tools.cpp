@@ -6,12 +6,13 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 16:49:06 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/14 23:38:16 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/15 12:12:28 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Tools.hpp"
 #include <unistd.h>
+#include "../inc/server.hpp"
 
 void Server::remove_member(std::string nick, std::string ch_name)
 {
@@ -183,5 +184,14 @@ void Server::broadcastToChan(Client &client, Channel &chann, std::string tar, st
 		}
 	}
 	else
-		rp = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), chann.getName(), t, tar);
+	{
+		for (std::vector<Client>::iterator it = chann.getMembers().begin(); it != chann.getMembers().end(); it++)
+		{
+			rp = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), chann.getName(), t, tar);
+			if (client.getClient_nick() == it->getClient_nick())
+				continue;
+			send(it->getClient_fd(), rp.c_str(), rp.length(), 0);
+		}
+
+	}
 }

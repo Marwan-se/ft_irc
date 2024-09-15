@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 17:54:50 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/14 23:56:44 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/15 17:18:08 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ void Server::join(Message &comm , Client &client)
 	ss << comm.getMsg();
 	while (std::getline(ss, tmp, ',')) 
 		ch_key.push_back(tmp);
+	if (!ch_key.empty() && ch_key[0][0] == ':')
+		ch_key[0].erase(0,1);
 	ss.clear();
 	for (size_t l = 0; l < ch_name.size(); l++) 
 	{
@@ -84,7 +86,7 @@ void Server::join(Message &comm , Client &client)
 						{
 							std::stringstream s1;
 							s1 << channels[ch_name[l]].getTime();
-							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, it->second.getTopic());
+							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, ":" + it->second.getTopic());
 							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 							rpl = RPL_TOPICWHOTIME(client.get_hostname(), client.getClient_nick(), ch_name[l], channels[ch_name[l]].getTopicSetter(), s1.str());
 							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
@@ -109,7 +111,7 @@ void Server::join(Message &comm , Client &client)
 						{
 							std::stringstream s1;
 							s1 << channels[ch_name[l]].getTime();
-							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, it->second.getTopic());
+							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, ":" + it->second.getTopic());
 							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 							rpl = RPL_TOPICWHOTIME(client.get_hostname(), client.getClient_nick(), ch_name[l], channels[ch_name[l]].getTopicSetter(), s1.str());
 							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
@@ -140,7 +142,7 @@ void Server::join(Message &comm , Client &client)
 						{
 							std::stringstream s1;
 							s1 << channels[ch_name[l]].getTime();
-							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, it->second.getTopic());
+							rpl = RPL_TOPIC(client.get_hostname(), client.getClient_nick(), tmpn, ":" + it->second.getTopic());
 							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 							rpl = RPL_TOPICWHOTIME(client.get_hostname(), client.getClient_nick(), ch_name[l], channels[ch_name[l]].getTopicSetter(), s1.str());
 							send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
@@ -182,18 +184,18 @@ void Server::kick(Message &comm , Client &client)
 	ss << comm.getMsg();
 	while (std::getline(ss, tmp, ',')) 
 		client_name.push_back(tmp);
-	if (comm.getTarget().empty() || comm.getMsg().empty() || (client_name.size() != ch_name.size()))
+	if (comm.getTarget().empty() || comm.getMsg().empty() || ch_name.size() != 1)
 	{
 		rpl = ERR_NEEDMOREPARAMS(client.get_hostname(), client.getClient_nick(), "KICK");
 		send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 		return;
 	}
 	ss.clear();
-	for (size_t l = 0; l < ch_name.size(); l++)
+	for (size_t l = 0; l < client_name.size(); l++)
 	{
-		if (this->channels.find(ch_name[l]) == this->channels.end())
+		if (this->channels.find(ch_name[0]) == this->channels.end())
 		{
-			rpl = ERR_NOSUCHCHANNEL(client.get_hostname(), client.getClient_nick(), ch_name[l]);
+			rpl = ERR_NOSUCHCHANNEL(client.get_hostname(), client.getClient_nick(), ch_name[0]);
 			send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 		}
 		else if (client_exist(client_name[l]).getClient_nick().empty())
@@ -201,41 +203,41 @@ void Server::kick(Message &comm , Client &client)
 			rpl = ERR_NOSUCHNICK(client.get_hostname(), client.getClient_nick(), client_name[l]);
 			send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 		}
-		else if (!is_member(client.getClient_nick(), ch_name[l]))
+		else if (!is_member(client.getClient_nick(), ch_name[0]))
 		{
-			rpl = ERR_NOTONCHANNEL(client.get_hostname(), client.getClient_nick(), ch_name[l]);
+			rpl = ERR_NOTONCHANNEL(client.get_hostname(), client.getClient_nick(), ch_name[0]);
 			send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);	
 		}
-		else if (!is_op(client.getClient_nick(), ch_name[l]))
+		else if (!is_op(client.getClient_nick(), ch_name[0]))
 		{
-			rpl = ERR_CHANOPRIVSNEEDED(client.get_hostname(), client.getClient_nick(), ch_name[l]);
+			rpl = ERR_CHANOPRIVSNEEDED(client.get_hostname(), client.getClient_nick(), ch_name[0]);
 			send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);	
 		}
-		else if (!is_member(client_name[l], ch_name[l]))
+		else if (!is_member(client_name[l], ch_name[0]))
 		{
-			rpl = ERR_USERNOTINCHANNEL(client.get_hostname(), client.getClient_nick(), client_name[l], ch_name[l]);
+			rpl = ERR_USERNOTINCHANNEL(client.get_hostname(), client.getClient_nick(), client_name[l], ch_name[0]);
 			send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);	
 		}
 		else 
 		{
 			Client kicked = client_exist(client_name[l]);
-			remove_member(client_name[l], ch_name[l]);
+			remove_member(client_name[l], ch_name[0]);
 			if (comm.getComm().empty())
 			{
-				rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "KICK" + " " + ch_name[l] + " " + client_name[l] + " " + client.getClient_nick() + " :NO COMMENT GIVEN\r\n";
-				msg_chann(client, " :NO COMMENT GIVEN", ch_name[l],ch_name[l], "KICK");
+				rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "KICK" + " " + ch_name[0] + " " + client_name[l] + " " + client.getClient_nick() + " :NO COMMENT GIVEN\r\n";
+				msg_chann(client, " :NO COMMENT GIVEN", ch_name[0],ch_name[0], "KICK");
 			}
 			else
 			{
-				rpl = ":" + client.getClient_nick()  + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "KICK" + " " + ch_name[l] + " " + client_name[l] + " " + client.getClient_nick() + " " + comm_gen(comm.getComm()) + "\r\n";
-				msg_chann(client, " " + comm_gen(comm.getComm()), ch_name[l],ch_name[l], "KICK");
+				rpl = ":" + client.getClient_nick()  + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "KICK" + " " + ch_name[0] + " " + client_name[l] + " " + client.getClient_nick() + " " + comm_gen(comm.getComm()) + "\r\n";
+				msg_chann(client, " " + comm_gen(comm.getComm()), ch_name[0],ch_name[0], "KICK");
 
 			}
 			send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 			if (client.getClient_fd() != kicked.getClient_fd())
 				send(kicked.getClient_fd(), rpl.c_str(), rpl.size(), 0);
-			if (channels[ch_name[l]].getMembers().empty())
-				channels.erase(ch_name[l]);
+			if (channels[ch_name[0]].getMembers().empty())
+				channels.erase(ch_name[0]);
 		}
 	}
 }
@@ -258,7 +260,7 @@ void Server::privmsg(Message &comm , Client &client)
 		send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
 		return;
 	}
-	if (comm.getComm().empty())
+	if (comm.getMsg().size() == 1 && comm.getMsg().find(':') != std::string::npos)
 	{
 		rpl = ERR_NOTEXTTOSEND(client.get_hostname(), client.getClient_nick());
 		send(client.getClient_fd(), rpl.c_str(), rpl.size(), 0);
