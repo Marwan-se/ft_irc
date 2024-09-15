@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 14:17:11 by msaidi            #+#    #+#             */
-/*   Updated: 2024/09/15 17:10:21 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/15 17:40:01 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,6 +236,7 @@ void    Server::handlingMODE(Message message, std::map<std::string, Channel> &ch
 
 	if (message.getCommand() == "MODE")
 	{
+
 		if (message.getTarget().empty())
 		{
 			std::string m = ERR_NEEDMOREPARAMS(client.get_hostname(), client.getClient_nick(), message.getCommand());
@@ -375,7 +376,7 @@ void    Server::handlingMODE(Message message, std::map<std::string, Channel> &ch
 						if (channels[message.getTarget()].getClientMember(message.getComm()).getisOp())
 							return ;
 						channels[message.getTarget()].getClientMember(message.getComm()).setisOp(true);
-						std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+o", "");
+						std::string m = RPL_CHANNELMODEIS(client.getClient_nick(), client.getClient_user(), client.getClient_ip(), message.getTarget(), "+o", message.getComm());
 						send(client.getClient_fd(), m.c_str(), m.length(),0);
 						broadcastToChan(client, channels[message.getTarget()], "", "+o", 2);
 

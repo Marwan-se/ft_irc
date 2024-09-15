@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:22 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/14 22:37:25 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/15 18:05:37 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ class	Server
 		bool is_op(std::string nick, std::string ch_name);
 		void remove_member(std::string nick, std::string ch_name);
 		void remove_from_ch(Client &client, std::map<std::string, Channel> &ch, bool flag);
-		void msg_chann(Client client, std::string msg, std::string ch_name,std::string target, std::string command);
+		void msg_chann(Client client, std::string msg, std::string ch_name,std::string target, std::string command, int i);
 		void handlingINV(Message message, std::map<std::string, Channel> &channels, Client &client);
 		void handlingMODE(Message message, std::map<std::string, Channel> &channels, Client &client);
 		void handlingTOPIC(Message message, std::map<std::string, Channel> &channels, Client &client);

@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/13 08:02:46 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/15 17:20:01 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/15 18:06:19 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void Server::chan_nick(Client &client, std::string new_nick)
 	{
 		if (is_member(client.getClient_nick(), it->second.getName()))
 		{
-			msg_chann(client,"", it->second.getName(), new_nick , "NICK");
+			msg_chann(client,"", it->second.getName(), new_nick , "NICK", 0);
 			it->second.getClientMember(client.getClient_nick()).setClient_nick(new_nick);
 		}
 	}
