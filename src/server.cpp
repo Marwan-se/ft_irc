@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/15 16:31:55 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/16 02:56:16 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ bool empty_line(std::string s)
 void	Server::receive_data(int fd, std::string password)
 {
 	Client client = client_info[fd];
-	char buffer[600];
+	char buffer[1024];
 	memset(buffer, 0, sizeof(buffer));
 	ssize_t	data = recv(fd, buffer, sizeof(buffer), 0);
 	if (data <= 0)

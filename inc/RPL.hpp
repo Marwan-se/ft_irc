@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/08 21:56:27 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/15 16:50:07 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/15 22:18:02 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@
 
 //********MODE*********//
 
-#define ERR_UNKNOWNMODE(client, modechar) (":irc.1337.ma 472 " + client +  modechar + " :is unknown mode char to me\r\n")
+#define ERR_UNKNOWNMODE(client, modechar) (":irc.1337.ma 472 " + client + " " + modechar + " :is unknown mode char to me\r\n")
 #define RPL_CHANNELMODEIS(client, user, ipadd, channel, mod, param) (":" + client + "!~" + user + "@" + ipadd + " MODE " + channel + " " + mod + " " + param + "\r\n")
 #define ERR_INVALIDMODEPARAM(client, user, ipadd, channel, mod, param) (":" + client + "!~" + user + "@" + ipadd + " MODE " + channel + " " + mod + " " + param + "\r\n")
 
