@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:28 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/15 20:19:54 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/16 03:43:41 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,11 @@ int main(int ac, char **av)
 	}
 	// get port from input
 	std::string password = av[2];
+	if (password.find_first_not_of(" \t") == std::string::npos)
+    {
+		std::cerr << "Usage: ./ircserv <port> <password>" << std::endl;
+        return 1;
+    }
 	int port = atoi(av[1]);
 	//get password from input
 	try

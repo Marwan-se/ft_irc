@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/13 08:02:46 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/15 20:18:49 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/16 03:39:54 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ void	Server::handle_nick_command(int fd, std::string message, std::string rest_o
 	}
 	else
 	{
-		if (message.find_first_of("#:,*?!@%. '\t'") != std::string::npos || message[0] == '$' || message[0] == '&' \
+		if (message.find_first_of("#:,*?!@. '\t'") != std::string::npos || message[0] == '$' || message[0] == '&' \
 			|| isdigit(message[0]))
 		{
 			if (client_info[fd].getClient_nick().empty())

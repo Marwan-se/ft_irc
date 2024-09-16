@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/16 02:56:16 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/16 03:41:05 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ void	Server::init_Socket(int domain, int type, int protocol, int port)
 
 void trimString(std::string &str)
 {
-    size_t endpos = str.find_last_not_of(" \t\r\n");
+    size_t endpos = str.find_last_not_of("\r\n");
     if (std::string::npos != endpos)
 	{
         str = str.substr(0, endpos + 1);
@@ -139,7 +139,6 @@ void	Server::receive_data(int fd, std::string password)
 	{
 		if (send(fd, ERR_INPUTTOOLONG(client.get_hostname(), client.getClient_nick()).c_str(), ERR_INPUTTOOLONG(client.get_hostname(), client.getClient_nick()).size(), 0) < 0)
 			std::cout << "Error: send failed" << std::endl;
-		return;
 	}
 	else
 	{
