@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
+/*   By: msekhsou <msekhsou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 17:20:07 by msekhsou          #+#    #+#             */
-/*   Updated: 2024/09/16 03:41:05 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/16 05:06:56 by msekhsou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@ Server::~Server()
 void Server::SignalHandler(int signum)
 {
 	(void)signum;
-	std::cout << std::endl << "Signal Received!" << std::endl;
 	Server::signal_received_flag = true;
 }
 
@@ -80,8 +79,7 @@ void	Server::init_Socket(int domain, int type, int protocol, int port)
 		close(Socket_fd);
 		throw (std::runtime_error("Error: fcntl failed"));
 	}
-	int aa = bind(Socket_fd, (struct sockaddr *)&Server_addr, sizeof(Server_addr));
-	if (aa < 0)
+	if (bind(Socket_fd, (struct sockaddr *)&Server_addr, sizeof(Server_addr)) < 0)
 	{
 		close(Socket_fd);
 		throw (std::runtime_error("Error: bind failed"));
