@@ -6,7 +6,7 @@
 /*   By: msaidi <msaidi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 17:54:50 by yrrhaibi          #+#    #+#             */
-/*   Updated: 2024/09/15 20:17:11 by msaidi           ###   ########.fr       */
+/*   Updated: 2024/09/16 03:10:43 by msaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void Server::join(Message &comm , Client &client)
 	for (size_t l = 0; l < ch_name.size(); l++) 
 	{
 		std::string tmpn(ch_name.at(l));
-		if (ch_name.at(l).at(0) == '#')
+		if (!ch_name.at(l).empty() && ch_name.at(l).at(0) == '#')
 		{
 			it = this->channels.find(tmpn);
 				if (it == this->channels.end())
@@ -250,7 +250,7 @@ void Server::kick(Message &comm , Client &client)
 		else 
 		{
 			Client kicked = client_exist(client_name[l]);
-			if (comm.getComm().empty() || comm.getComm().at(0) == ':')
+			if (comm.getComm().empty() || (comm.getComm().at(0) == ':' && comm.getComm().size() == 1))
 			{
 				rpl = ":" + client.getClient_nick() + "!~" + client.getClient_user() + "@" + client.getClient_ip() + " " + "KICK" + " " + ch_name[0] + " " + client_name[l] + " " + client.getClient_nick() + " :NO COMMENT GIVEN\r\n";
 				msg_chann(client, rpl, ch_name[0],ch_name[0] , "KICK", 1);
@@ -308,6 +308,8 @@ void Server::privmsg(Message &comm , Client &client)
 			is_channel = true;
 			it = channels.find(client_name[l]);
 		}
+		else 
+			is_channel = false;
 		if (is_channel && it == this->channels.end())
 		{
 			rpl = ERR_NOSUCHCHANNEL(client.get_hostname(), client.getClient_nick(), client_name[l]);
